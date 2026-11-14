@@ -1,0 +1,2144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mission Architect — Space Mission Design Game</title>
+<meta name="description" content="Design, launch and operate a complete space mission. NASA Space Apps Challenge 2026 — Space Mission Design Game.">
+<meta name="generator" content="Code drafted with AI assistance (Claude, Anthropic) and reviewed by the team">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>:root{
+  --bg:#070b16; --bg2:#0d1426; --panel:#111a30; --panel2:#16213c; --line:#24304d; --text:#e6ebf5; --muted:#8f9bb5;
+  --accent:#ffb547; --accent2:#5ce1e6; --good:#4ade80; --warn:#fbbf24; --bad:#f87171; --radius:14px;
+  --font:'Space Grotesk',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.45}
+body{background:
+  radial-gradient(1200px 600px at 80% -10%,rgba(92,225,230,.08),transparent 60%),
+  radial-gradient(900px 500px at -10% 110%,rgba(255,181,71,.07),transparent 60%),var(--bg);min-height:100vh}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;background-image:
+  radial-gradient(1px 1px at 20px 30px,#fff,transparent),radial-gradient(1px 1px at 120px 80px,#cfe,transparent),
+  radial-gradient(1px 1px at 200px 160px,#fff,transparent),radial-gradient(1.5px 1.5px at 330px 50px,#fff,transparent),
+  radial-gradient(1px 1px at 400px 220px,#ddf,transparent);background-size:450px 260px}
+#app{position:relative;z-index:1}
+h1,h2,h3{margin:.2em 0 .4em;line-height:1.15}
+h2{font-size:1.6rem} h3{font-size:1.1rem;letter-spacing:.01em}
+.muted{color:var(--muted)} .small{font-size:.82rem} .right{text-align:right} .center{justify-content:center}
+.ok{color:var(--good)} .warn{color:var(--warn)} .bad{color:var(--bad)}
+code{font-family:var(--mono);background:var(--panel2);padding:1px 5px;border-radius:5px}
+
+/* buttons */
+.btn{font:inherit;cursor:pointer;border-radius:10px;padding:.55em 1em;border:1px solid var(--line);background:var(--panel);color:var(--text);transition:.15s;font-weight:500}
+.btn:hover:not([disabled]){border-color:#3a4a72;transform:translateY(-1px)}
+.btn.primary{background:linear-gradient(135deg,#ffb547,#ff8a3d);border-color:transparent;color:#1a0f00;font-weight:700}
+.btn.ghost{background:transparent}
+.btn.go{background:rgba(74,222,128,.15);border-color:var(--good);color:var(--good)}
+.btn.link{background:none;border:none;color:var(--accent2);padding:.3em .4em}
+.btn.big{padding:.8em 1.4em;font-size:1.05rem} .btn.huge{padding:1em 2em;font-size:1.25rem;margin-top:12px}
+.btn.small{padding:.3em .7em;font-size:.82rem}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.cta{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
+.cta.small{margin-top:0}
+
+/* home */
+.home{max-width:1180px;margin:0 auto;padding:48px 24px}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:30px;align-items:center;min-height:62vh}
+.kicker{font-family:var(--mono);font-size:.78rem;color:var(--accent2);text-transform:uppercase;letter-spacing:.12em}
+.hero h1{font-size:clamp(3rem,8vw,6rem);font-weight:700;letter-spacing:-.03em;margin:.15em 0}
+.hero h1 span{background:linear-gradient(90deg,#ffb547,#ff6b6b 50%,#9b8cff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{font-size:1.15rem;color:#c3cce0;max-width:560px}
+.hero-art svg{width:100%;filter:drop-shadow(0 20px 40px rgba(0,0,0,.6))}
+.features{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:20px}
+.feat{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:6px}
+.feat span{color:var(--muted);font-size:.9rem}
+
+/* pages */
+.page{max-width:1180px;margin:0 auto;padding:28px 24px 60px}
+.page.narrow{max-width:900px}
+.back{margin-bottom:8px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin:14px 0}
+.lbl{display:block;font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:10px 0 6px}
+.input{font:inherit;width:100%;padding:.6em .8em;background:var(--bg2);border:1px solid var(--line);border-radius:10px;color:var(--text)}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.segbtn{font:inherit;cursor:pointer;padding:.5em 1em;border-radius:10px;border:1px solid var(--line);background:var(--bg2);color:var(--text)}
+.segbtn.on{border-color:var(--accent);background:rgba(255,181,71,.12);color:var(--accent)}
+.players{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.playerrow{display:grid;grid-template-columns:220px 1fr;gap:10px;align-items:center}
+.roles{display:flex;gap:6px;flex-wrap:wrap}
+.rolechip{display:inline-flex;align-items:center;gap:4px;font-size:.78rem;padding:2px 8px;border-radius:999px;border:1px solid var(--rc);color:var(--rc);background:color-mix(in srgb,var(--rc) 10%,transparent);white-space:nowrap}
+.rolegrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.rolecard{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--rc);border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;gap:6px}
+.rolecard .ri{font-size:1.6rem} .rolecard small{color:var(--muted)} .rolecard .goal{color:#c9d3e8}
+.diffgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.diff{font:inherit;text-align:left;cursor:pointer;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--bg2);color:var(--text);display:flex;flex-direction:column;gap:4px}
+.diff small{color:var(--muted)} .diff.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+
+/* scenarios */
+.scgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
+.sccard{font:inherit;text-align:left;color:var(--text);cursor:pointer;background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:10px;transition:.2s;position:relative;overflow:hidden}
+.sccard:hover{border-color:var(--accent);transform:translateY(-3px)}
+.scicon{font-size:2.4rem}
+.sctop{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sctop b{font-size:1.2rem}
+.tag{font-size:.72rem;padding:2px 8px;border-radius:999px;background:var(--bg2);border:1px solid var(--line);color:var(--muted)}
+.sccard p{margin:0;color:#c3cce0;font-size:.92rem}
+.scmeta{display:flex;gap:12px;flex-wrap:wrap;font-size:.82rem;color:var(--muted)}
+.scobj{font-size:.85rem;border-top:1px dashed var(--line);padding-top:8px}
+
+/* design workspace */
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:16px;padding:10px 18px;background:rgba(7,11,22,.88);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.tb-title{flex:1;font-size:1.02rem}
+.tb-team{display:flex;gap:6px;flex-wrap:wrap}
+.pchip{font-size:.8rem;padding:3px 9px;border-radius:999px;background:var(--panel2);border:1px solid var(--line)}
+.workspace{display:grid;grid-template-columns:220px minmax(0,1fr) 340px;gap:18px;padding:18px;max-width:1600px;margin:0 auto}
+.steps{position:sticky;top:70px;align-self:start;display:flex;flex-direction:column;gap:6px}
+.navstep{font:inherit;color:var(--text);cursor:pointer;display:flex;gap:10px;align-items:center;text-align:left;padding:10px;border-radius:12px;border:1px solid transparent;background:transparent}
+.navstep:hover{background:var(--panel)}
+.navstep.on{background:var(--panel2);border-color:var(--line)}
+.navstep .num{flex:0 0 28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:.85rem;font-weight:700;background:var(--bg2);border:1px solid var(--line)}
+.navstep.st-done .num{background:rgba(74,222,128,.15);border-color:var(--good);color:var(--good)}
+.navstep.st-issue .num{background:rgba(248,113,113,.15);border-color:var(--bad);color:var(--bad)}
+.navstep .nt{display:flex;flex-direction:column} .navstep small{color:var(--muted);font-size:.74rem}
+.navfoot{margin-top:10px;border-top:1px solid var(--line);padding-top:8px}
+.main{min-width:0}
+.side{position:sticky;top:70px;align-self:start;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px;max-height:calc(100vh - 88px);overflow:auto}
+.crafthold{background:radial-gradient(circle at 50% 40%,#16224a,#0a1024 70%);border-radius:12px;border:1px solid var(--line)}
+.crafthold svg,.craft{width:100%;display:block}
+.float{animation:float 6s ease-in-out infinite;transform-origin:center}
+.craft-empty{opacity:.35}
+@keyframes float{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-4px) rotate(.6deg)}}
+.scimeter{margin:12px 0 6px}
+.scimeter>div:first-child{display:flex;justify-content:space-between;align-items:baseline}
+.scimeter b{font-size:1.4rem}
+.gauges{display:flex;flex-direction:column;gap:9px;margin-top:10px}
+.gauge .gl{display:flex;justify-content:space-between;font-size:.8rem;gap:8px}
+.gauge .gl b{font-family:var(--mono);font-weight:500;font-size:.76rem;text-align:right}
+.gb{height:7px;background:var(--bg2);border-radius:99px;overflow:hidden;margin-top:3px;position:relative}
+.gb.big{height:12px}
+.gb i{display:block;height:100%;border-radius:99px;background:var(--good);transition:width .4s}
+.gauge.warn .gb i,.gb i.warn{background:var(--warn)} .gauge.bad .gb i,.gb i.bad{background:var(--bad)} .gb i.ok{background:var(--good)}
+.gauge.bad .gl b{color:var(--bad)} .gauge.warn .gl b{color:var(--warn)}
+.gauge.na .gb i{background:#3a4a72} .gauge.na{opacity:.6}
+.tgt{position:absolute;top:-2px;bottom:-2px;width:2px;background:#fff;opacity:.8}
+.issues{margin-top:12px;font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:8px}
+
+.turn{border:1px solid var(--rc);background:color-mix(in srgb,var(--rc) 10%,transparent);border-radius:12px;padding:10px 14px;margin-bottom:12px}
+.hint{border:1px dashed var(--accent2);background:rgba(92,225,230,.07);border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:.92rem}
+.sect{margin-bottom:26px}
+.sect .intro{color:#b8c2d8;margin:-.2em 0 .9em;font-size:.93rem}
+.sect.two{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.opt{font:inherit;color:var(--text);text-align:left;cursor:pointer;position:relative;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:13px 13px 12px;display:flex;flex-direction:column;gap:7px;transition:.15s}
+.opt:hover{border-color:#3a4a72;background:var(--panel2)}
+.opt.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;background:linear-gradient(160deg,rgba(255,181,71,.10),var(--panel))}
+.opt.dis{opacity:.45;cursor:not-allowed}
+.opt-h{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;padding-right:22px}
+.opt-h b{font-size:.98rem}
+.opt .ex{font-size:.78rem;color:var(--muted);margin-top:-4px}
+.stats{display:flex;flex-wrap:wrap;gap:5px}
+.stats span{font-family:var(--mono);font-size:.72rem;padding:2px 6px;border-radius:6px;background:var(--bg2);border:1px solid var(--line);color:#c9d3e8}
+.learn{font-size:.82rem;color:var(--muted)}
+.check{position:absolute;top:10px;right:10px;width:20px;height:20px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font-size:.75rem;color:#1a0f00}
+.opt.on .check{background:var(--accent);border-color:var(--accent)}
+.badge{font-size:.68rem;padding:2px 7px;border-radius:999px;white-space:nowrap;font-weight:600}
+.badge.good{background:rgba(74,222,128,.15);color:var(--good)} .badge.ok{background:rgba(92,225,230,.15);color:var(--accent2)}
+.badge.warn{background:rgba(251,191,36,.15);color:var(--warn)} .badge.bad{background:rgba(248,113,113,.15);color:var(--bad)} .badge.dim{background:var(--bg2);color:var(--muted)}
+.stars{color:var(--accent);font-size:.8rem;letter-spacing:1px;white-space:nowrap}
+.goalbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:12px;font-size:.88rem}
+.gpill{padding:3px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.gpill.ok{border-color:var(--good);color:var(--good)}
+.stepnav{display:flex;justify-content:space-between;margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
+
+.brief{background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:24px}
+.briefhead{display:flex;gap:14px;align-items:center}.bigicon{font-size:2.8rem}
+.objectives{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.obj{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.obj span{font-family:var(--mono);font-size:.7rem;color:var(--muted);letter-spacing:.1em}
+.obj.primary{border-color:var(--accent)} .obj.primary span{color:var(--accent)}
+.obj small{color:var(--muted)}
+.slider{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.slider input{flex:1;min-width:200px;accent-color:var(--accent)}
+.slider b{font-size:1.2rem;min-width:80px}
+.orbitview{background:radial-gradient(circle at 50% 50%,#101a3a,#070b16);border:1px solid var(--line);border-radius:16px;margin-bottom:18px;overflow:hidden}
+.orbitsvg{width:100%;display:block;max-height:260px}
+.databox{display:grid;grid-template-columns:auto auto 1fr;gap:6px 16px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:20px}
+.databox small{display:block;color:var(--muted);font-size:.75rem}
+.databox b{font-family:var(--mono);font-size:.9rem}
+.databox .arrow{font-size:1.4rem;color:var(--muted)}
+.databox .bar,.databox .muted{grid-column:1/-1}
+.databox .bar{height:9px;background:var(--bg2);border-radius:99px;overflow:hidden;position:relative}
+.databox .bar:after{content:"";position:absolute;left:50%;top:0;bottom:0;width:2px;background:#fff;opacity:.6}
+.databox .bar i{display:block;height:100%}.databox .bar i.ok{background:var(--good)}.databox .bar i.warn{background:var(--warn)}.databox .bar i.bad{background:var(--bad)}
+.massbox{display:flex;align-items:center;gap:16px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;flex-wrap:wrap}
+.massbox small{display:block;color:var(--muted);font-size:.75rem}.massbox b{font-family:var(--mono);font-size:1.1rem}
+
+/* review */
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.sum{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column}
+.sum small,.sum span{color:var(--muted);font-size:.78rem}.sum b{font-size:1.4rem}
+.checks{display:flex;flex-direction:column;gap:6px}
+.chk{display:flex;gap:10px;padding:10px 12px;border-radius:12px;background:var(--panel);border:1px solid var(--line);font-size:.9rem}
+.chk small{display:block;color:var(--muted);margin-top:3px}
+.chk.st-block{border-color:var(--bad);background:rgba(248,113,113,.06)}
+.chk.st-fail{border-color:rgba(248,113,113,.6)}
+.chk.st-warn{border-color:rgba(251,191,36,.45)}
+.chk .owner{margin-left:6px}
+.ci{font-size:1.05rem}
+.tbl{width:100%;border-collapse:collapse;font-size:.9rem}
+.tbl td,.tbl th{padding:7px 6px;border-bottom:1px solid var(--line);text-align:left}
+.tbl td:last-child{text-align:right;font-family:var(--mono);white-space:nowrap}
+.tbl tr.tot td{font-weight:700;border-top:2px solid var(--line)}
+.goalrow{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);font-size:.86rem}
+.goalrow b{color:var(--muted);font-size:.8rem}.goalrow.met b{color:var(--good)}
+.launchpad{background:linear-gradient(160deg,rgba(255,181,71,.07),var(--panel));border:1px solid var(--line);border-radius:18px;padding:20px;text-align:center}
+.signrow{display:flex;justify-content:center;align-items:center;gap:16px;margin:6px 0}
+.signrow span{min-width:180px;text-align:right}
+.override{display:block;margin:12px auto 0;color:var(--warn);font-size:.9rem}
+
+/* sim */
+.simwrap{display:grid;grid-template-columns:1.25fr 1fr;gap:18px;padding:18px;max-width:1400px;margin:0 auto}
+.simview{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.simscene{background:radial-gradient(circle at 50% 50%,#101a3a,#05080f);border-radius:14px;min-height:300px;display:grid;place-items:center;overflow:hidden;border:1px solid var(--line)}
+.simscene .orbitsvg{max-height:none}
+.launchscene{position:relative;height:300px;width:100%;display:grid;place-items:center}
+.rocket{height:220px;animation:lift 3s ease-in forwards}
+.pad{position:absolute;bottom:0;left:0;right:0;height:26px;background:linear-gradient(#2a3248,#151b2b)}
+@keyframes lift{0%{transform:translateY(40px)}15%{transform:translateY(36px)}100%{transform:translateY(-420px)}}
+.simstats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.simstats>div{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.simstats small{display:block;color:var(--muted);font-size:.75rem}.simstats b{font-family:var(--mono);font-size:.95rem}
+.simctrl{display:flex;gap:6px;flex-wrap:wrap}
+.simlog{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;max-height:calc(100vh - 110px);overflow:auto}
+.logi{display:grid;grid-template-columns:40px 1fr;gap:8px;font-size:.86rem;padding:6px 0;border-bottom:1px solid rgba(36,48,77,.6)}
+.logi span{font-family:var(--mono);color:var(--muted);font-size:.74rem;padding-top:2px}
+.logi.good{color:#b8f5cc}.logi.bad{color:#ffb4b4}.logi.warn{color:#ffe29a}.logi.event{color:#bfe9ff}.logi.phase{color:var(--accent);font-weight:600}
+
+/* modal */
+.modalbg{position:fixed;inset:0;background:rgba(3,6,14,.72);backdrop-filter:blur(4px);z-index:50;display:grid;place-items:center;padding:20px}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:26px;max-width:680px;width:100%;max-height:88vh;overflow:auto;position:relative;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.modal .x{position:absolute;top:10px;right:14px;background:none;border:none;color:var(--muted);font-size:1.6rem;cursor:pointer}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.evicon{font-size:2.6rem}
+.modal .learn{background:var(--bg2);border-radius:12px;padding:10px 12px;font-size:.88rem;color:#c3cce0}
+.choices{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.choice{display:grid;grid-template-columns:1fr auto;gap:2px 12px;align-items:center;padding:12px;border-radius:12px;background:var(--bg2);border:1px solid var(--line)}
+.choice small{grid-column:1;color:var(--muted)} .choice .btn{grid-row:1/3;grid-column:2}
+.choice.dis{opacity:.5}
+.votes{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.voterow{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.voterow>div{display:flex;gap:4px;flex-wrap:wrap}
+.tally{display:flex;gap:14px;margin:10px 0;font-size:.85rem;color:var(--muted)}
+.result{font-size:1.05rem;background:var(--bg2);padding:14px;border-radius:12px;border-left:3px solid var(--accent)}
+.howto li{margin-bottom:8px}
+.glossary dt{font-weight:700;margin-top:10px;color:var(--accent2)} .glossary dd{margin:2px 0 0;color:#c3cce0;font-size:.92rem}
+textarea.code{width:100%;min-height:90px;font-family:var(--mono);font-size:.78rem;background:var(--bg2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px;margin:8px 0;word-break:break-all}
+.lb td:last-child{text-align:right}
+
+/* report */
+.banner{display:flex;justify-content:space-between;align-items:center;gap:20px;border-radius:20px;padding:24px 28px;border:1px solid var(--line);margin-bottom:18px}
+.banner.good{background:linear-gradient(135deg,rgba(74,222,128,.18),var(--panel))}
+.banner.warn{background:linear-gradient(135deg,rgba(251,191,36,.16),var(--panel))}
+.banner.bad{background:linear-gradient(135deg,rgba(248,113,113,.18),var(--panel))}
+.banner h1{font-size:2.4rem}
+.scorebox{text-align:center;min-width:140px}
+.scorebox .stars{font-size:2rem}.scorebox b{display:block;font-size:2.4rem;font-family:var(--mono)}
+.reportgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.reportgrid .card{margin:0}.reportgrid .wide{grid-column:1/-1}
+.lessons{padding-left:18px;margin:0}.lessons li{margin-bottom:8px}
+.lessons li.good::marker{content:"✓  ";color:var(--good)}.lessons li.warn::marker{content:"!  ";color:var(--warn)}.lessons li.bad::marker{content:"✗  ";color:var(--bad)}
+.miniscroll{max-height:320px;overflow:auto}
+.decisions{padding-left:18px}.decisions li{margin-bottom:8px}
+.specs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+.specs div{background:var(--bg2);border-radius:10px;padding:8px 10px}.specs small{display:block;color:var(--muted);font-size:.75rem}
+
+@media (max-width:1180px){
+  .workspace{grid-template-columns:200px minmax(0,1fr)}
+  .side{grid-column:1/-1;position:static;max-height:none;order:-1;display:grid;grid-template-columns:260px 1fr;gap:14px}
+  .side .scimeter,.side .gauges,.side .issues{grid-column:2}
+  .side .crafthold{grid-row:1/4}
+}
+@media (max-width:820px){
+  .hero{grid-template-columns:1fr}.features,.rolegrid{grid-template-columns:1fr 1fr}
+  .scgrid,.diffgrid{grid-template-columns:1fr}
+  .workspace{grid-template-columns:1fr;padding:10px}
+  .steps{position:static;flex-direction:row;overflow-x:auto}
+  .navstep{flex:0 0 auto}.navstep .nt small,.navfoot{display:none}
+  .side .crafthold{display:none}
+  .side{grid-template-columns:1fr}.side .scimeter,.side .gauges,.side .issues,.side .crafthold{grid-column:1;grid-row:auto}
+  .sect.two,.reportgrid,.simwrap{grid-template-columns:1fr}
+  .summary{grid-template-columns:1fr 1fr}
+  .playerrow{grid-template-columns:1fr}
+  .topbar{flex-wrap:wrap}.tb-team{display:none}
+  .banner{flex-direction:column;text-align:center}
+  .specs{grid-template-columns:1fr 1fr}
+}
+
+.footnote{text-align:center;margin-top:28px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<noscript>Mission Architect needs JavaScript to run.</noscript>
+<!-- AI disclosure: this game's code was drafted with the help of Claude (Anthropic), an AI assistant. See README.md. -->
+<script>/* ==========================================================================
+   MISSION ARCHITECT — game data + engineering model + simulation engine
+   Pure logic, no DOM. Values are simplified for play but grounded in
+   real mission-design relationships (rocket equation, eclipse power
+   sizing, link rate vs. distance, NASA risk classes, etc.).
+   ========================================================================== */
+const GAME = (() => {
+  const G0 = 9.80665;
+
+  // ---------- ROLES ----------
+  const ROLES = {
+    director: { id: 'director', name: 'Mission Director', icon: '🎯', color: '#ffb547',
+      owns: 'Mission goals, budget, risk class & launch vehicle',
+      goal: 'Finish with at least 10% of the budget held in reserve and a successful mission.' },
+    science: { id: 'science', name: 'Science Lead', icon: '🔬', color: '#5ce1e6',
+      owns: 'Scientific instruments',
+      goal: 'Return at least 100% of the science target.' },
+    engineer: { id: 'engineer', name: 'Spacecraft Engineer', icon: '🛠️', color: '#9b8cff',
+      owns: 'Spacecraft bus, power, attitude control, computer, propulsion, thermal',
+      goal: 'Launch with at least 20% power margin and 15% launch-mass margin.' },
+    flightops: { id: 'flightops', name: 'Flight Ops & Comms', icon: '📡', color: '#7ee787',
+      owns: 'Orbit, communications & ground stations',
+      goal: 'Downlink at least 150% of the data produced and meet the end-of-life disposal plan.' },
+  };
+  const ROLE_ORDER = ['director', 'science', 'engineer', 'flightops'];
+
+  // ---------- DIFFICULTY ----------
+  const DIFFICULTY = {
+    cadet: { id: 'cadet', name: 'Cadet', budgetMult: 1.3, hazardMult: 0.5, launchSafe: true, events: 2,
+      desc: '30% extra budget, gentler events, no launch failures, hints switched on.' },
+    engineer: { id: 'engineer', name: 'Engineer', budgetMult: 1.0, hazardMult: 1.0, launchSafe: false, events: 3,
+      desc: 'Realistic budget and risks. Launches can fail at the rocket\'s real-world rate.' },
+    director: { id: 'director', name: 'Flight Director', budgetMult: 0.9, hazardMult: 1.4, launchSafe: false, events: 4,
+      desc: '10% less budget, harsher space environment, more surprises.' },
+  };
+
+  // ---------- RISK CLASSES (NASA NPR 8705.4 style) ----------
+  const RISK = [
+    { id: 'D', name: 'Class D — Low cost, higher risk', costMult: 1.0, massMult: 1.0, hazMult: 1.6, redundancy: false,
+      learn: 'Single-string design: no backups. Common for CubeSats and tech demos. Cheapest, but one failure can end the mission.' },
+    { id: 'C', name: 'Class C — Balanced', costMult: 1.1, massMult: 1.05, hazMult: 1.0, redundancy: false,
+      learn: 'Selective testing and some backups. Used by many small science missions.' },
+    { id: 'B', name: 'Class B — High priority', costMult: 1.3, massMult: 1.12, hazMult: 0.5, redundancy: true,
+      learn: 'Redundant (backup) critical systems and extensive testing. Typical for major science missions.' },
+    { id: 'A', name: 'Class A — Flagship', costMult: 1.6, massMult: 1.2, hazMult: 0.25, redundancy: true,
+      learn: 'Maximum redundancy and testing, for irreplaceable flagships like the James Webb Space Telescope.' },
+  ];
+
+  // ---------- ORBITS ----------
+  // dist: link distance class used by comms + ground tables
+  const ORBITS = [
+    { id: 'leo', name: 'Low Earth Orbit', short: 'LEO · 500 km', dist: 'near', body: 'earth',
+      eclipseMin: 36, periodMin: 95, solar: 1.0, radiation: 1, thermal: 1, dvInsert: 0, dvYear: 25, dvDispose: 0,
+      transitDays: 0, dod: 0.3, stationKeepLimitsLife: false,
+      learn: 'Closest to Earth: sharp images and fast downlinks, cheapest to reach. Orbits every ~95 minutes and spends ~36 of them in Earth\'s shadow. Thin atmosphere drags the orbit down, so at 500 km a dead satellite naturally re-enters within a few years.' },
+    { id: 'sso', name: 'Sun-Synchronous Orbit', short: 'SSO · 700 km', dist: 'near', body: 'earth',
+      eclipseMin: 34, periodMin: 99, solar: 1.0, radiation: 1, thermal: 1, dvInsert: 0, dvYear: 10, dvDispose: 120,
+      transitDays: 0, dod: 0.3, stationKeepLimitsLife: false,
+      learn: 'A near-polar orbit that passes over each place at the same local time every day — ideal for comparing images over time. At 700 km drag is weak, so you need propellant to de-orbit at end of life or the satellite becomes long-lived debris.' },
+    { id: 'geo', name: 'Geostationary Orbit', short: 'GEO · 35,786 km', dist: 'geo', body: 'earth',
+      eclipseMin: 72, periodMin: 1436, solar: 1.0, radiation: 3, thermal: 1, dvInsert: 0, dvYear: 50, dvDispose: 12,
+      transitDays: 1, dod: 0.7, stationKeepLimitsLife: true,
+      learn: 'Orbits once per day, so it hovers over one spot: constant view of a whole hemisphere and 24-hour contact with a ground station, but 70× farther than LEO (blurrier images, weaker signal). Harsh radiation from the outer Van Allen belt. Needs station-keeping fuel every year.' },
+    { id: 'l1', name: 'Sun–Earth L1', short: 'L1 · 1.5 million km sunward', dist: 'deep', body: 'l1',
+      eclipseMin: 0, periodMin: 1, solar: 1.0, radiation: 2, thermal: 1, dvInsert: 30, dvYear: 10, dvDispose: 0,
+      transitDays: 100, dod: 0.7, stationKeepLimitsLife: true,
+      learn: 'A balance point between the Sun and Earth. A spacecraft here sees the solar wind about an hour before it reaches Earth — perfect for space-weather warnings. Never in shadow. Needs the Deep Space Network to talk home.' },
+    { id: 'l2', name: 'Sun–Earth L2', short: 'L2 · 1.5 million km anti-sunward', dist: 'deep', body: 'l2',
+      eclipseMin: 0, periodMin: 1, solar: 1.0, radiation: 2, thermal: 1, dvInsert: 30, dvYear: 4, dvDispose: 0,
+      transitDays: 30, dod: 0.7, stationKeepLimitsLife: true,
+      learn: 'Behind Earth as seen from the Sun. Sun, Earth and Moon all sit in one direction, so one sunshield can block their heat — that\'s why cold infrared telescopes like JWST live here.' },
+    { id: 'moon', name: 'Low Lunar Polar Orbit', short: 'Moon · 50 km polar', dist: 'moon', body: 'moon',
+      eclipseMin: 47, periodMin: 118, solar: 1.0, radiation: 2, thermal: 2, dvInsert: 800, dvYear: 100, dvDispose: 0,
+      transitDays: 5, dod: 0.5, stationKeepLimitsLife: true,
+      learn: 'Passes over both lunar poles where water ice may hide in shadowed craters. Requires a big braking burn (~800 m/s) to be captured, and the Moon\'s lumpy gravity keeps pulling low orbits down, costing fuel every year. Extreme surface heat swings.' },
+    { id: 'mars', name: 'Mars Science Orbit', short: 'Mars · 300 km', dist: 'mars', body: 'mars',
+      eclipseMin: 40, periodMin: 112, solar: 0.43, radiation: 2, thermal: 2, dvInsert: 1000, dvYear: 10, dvDispose: 0,
+      transitDays: 210, dod: 0.5, stationKeepLimitsLife: true,
+      learn: 'Mars gets only 43% of the sunlight Earth does, so solar arrays must be much bigger. Seven-month cruise, a ~1 km/s orbit-insertion burn, and up to 20 light-minutes of signal delay — downlink is the classic Mars bottleneck.' },
+  ];
+
+  // ---------- LAUNCH VEHICLES (capacity kg to each orbit) ----------
+  const LAUNCHERS = [
+    { id: 'rideshare', name: 'Rideshare slot', example: 'shared ride on a larger rocket', cost: 6, reliability: 0.97,
+      cap: { leo: 300, sso: 300 }, maxBus: 'small',
+      learn: 'Your spacecraft shares a rocket with others. Very cheap, but you go where the main customer goes (LEO/SSO only) and size is limited.' },
+    { id: 'small', name: 'Small launcher', example: 'Electron-class', cost: 9, reliability: 0.92,
+      cap: { leo: 450, sso: 300, moon: 40, l1: 40, l2: 40 }, maxBus: 'small',
+      learn: 'Dedicated small rocket: you choose the orbit and launch date. Lower track record. With a kick stage it can fling a tiny probe to the Moon.' },
+    { id: 'medium', name: 'Medium launcher', example: 'Falcon 9-class', cost: 70, reliability: 0.98,
+      cap: { leo: 17000, sso: 12000, geo: 2000, l1: 3500, l2: 3500, moon: 3000, mars: 1800 },
+      learn: 'Workhorse rocket with an excellent record. Can send moderate spacecraft almost anywhere.' },
+    { id: 'heavy', name: 'Heavy launcher', example: 'Falcon Heavy / Ariane 5-class', cost: 150, reliability: 0.96,
+      cap: { leo: 60000, sso: 40000, geo: 8000, l1: 15000, l2: 15000, moon: 12000, mars: 12000 },
+      learn: 'For large or far-flung missions: big observatories, outer-planet probes, heavy Mars orbiters.' },
+    { id: 'superheavy', name: 'Super-heavy launcher', example: 'SLS-class', cost: 2000, reliability: 0.95,
+      cap: { leo: 95000, sso: 70000, geo: 20000, l1: 30000, l2: 30000, moon: 27000, mars: 20000 },
+      learn: 'Enormous capacity at an enormous price. Usually reserved for crewed exploration.' },
+  ];
+
+  // ---------- SPACECRAFT BUS ----------
+  const BUSES = [
+    { id: 'cube', name: 'CubeSat (12U)', mass: 12, cost: 3, payloadMass: 8, slots: 2, basePower: 8, opsYear: 0.5,
+      maxPowerTier: 1, rtgOk: false, massMult: 0.15, powerMult: 0.3, costMult: 0.3,
+      learn: 'About the size of a carry-on bag. Very cheap and quick to build, but tiny room for instruments, power and fuel.' },
+    { id: 'small', name: 'SmallSat (ESPA-class)', mass: 50, cost: 20, payloadMass: 80, slots: 3, basePower: 40, opsYear: 2,
+      maxPowerTier: 2, rtgOk: false, massMult: 1, powerMult: 1, costMult: 1,
+      learn: 'Mini-fridge sized, up to ~300 kg total. The sweet spot for focused science missions.' },
+    { id: 'medium', name: 'Medium spacecraft', mass: 450, cost: 70, payloadMass: 500, slots: 5, basePower: 120, opsYear: 8,
+      maxPowerTier: 4, rtgOk: true, massMult: 3, powerMult: 2, costMult: 2,
+      learn: 'Car-sized. Room for a full instrument suite, big solar arrays and plenty of fuel — e.g. a Mars orbiter.' },
+    { id: 'large', name: 'Flagship spacecraft', mass: 1400, cost: 180, payloadMass: 2000, slots: 6, basePower: 300, opsYear: 25,
+      maxPowerTier: 4, rtgOk: true, massMult: 6, powerMult: 3, costMult: 3,
+      learn: 'Bus-sized observatory class. Carries the largest instruments and telescopes; also the most expensive to operate.' },
+  ];
+
+  // ---------- POWER ----------
+  const POWER = [
+    { id: 'body', name: 'Body-mounted solar cells', type: 'solar', watts: 40, mass: 2, cost: 0.5, tier: 0,
+      learn: 'Cells glued to the spacecraft\'s sides. Simple, no moving parts, little power.' },
+    { id: 'deploy', name: 'Deployable solar panels', type: 'solar', watts: 150, mass: 8, cost: 2, tier: 1,
+      learn: 'Panels that unfold after launch. Much more area — but deployments are a classic failure point.' },
+    { id: 'wings', name: 'Solar array wings', type: 'solar', watts: 800, mass: 35, cost: 8, tier: 2,
+      learn: 'Two rotating wings that track the Sun.' },
+    { id: 'largewings', name: 'Large solar wings', type: 'solar', watts: 3000, mass: 110, cost: 25, tier: 3,
+      learn: 'Big multi-panel wings for power-hungry payloads.' },
+    { id: 'huge', name: 'Roll-out solar arrays (ROSA)', type: 'solar', watts: 8000, mass: 250, cost: 55, tier: 4,
+      learn: 'Huge flexible arrays that unroll like a carpet. Used where sunlight is weak or demand is high.' },
+    { id: 'rtg', name: 'Radioisotope generator (MMRTG)', type: 'rtg', watts: 110, mass: 45, cost: 90, tier: 2,
+      learn: 'Turns heat from decaying plutonium into ~110 W, day and night, regardless of sunlight. Very expensive and scarce; powers rovers like Curiosity and Perseverance.' },
+  ];
+  const SOLAR_DEGRADE = 0.025, RTG_DEGRADE = 0.03, CHARGE_EFF = 0.85;
+
+  const BATTERIES = [
+    { id: 'b50', name: 'Mini Li-ion pack', wh: 50, mass: 0.4, cost: 0.2 },
+    { id: 'b300', name: 'Small Li-ion battery', wh: 300, mass: 2.5, cost: 1 },
+    { id: 'b1500', name: 'Medium Li-ion battery', wh: 1500, mass: 11, cost: 3 },
+    { id: 'b6000', name: 'Large Li-ion battery', wh: 6000, mass: 42, cost: 8 },
+    { id: 'b20000', name: 'Very large battery bank', wh: 20000, mass: 140, cost: 20 },
+  ];
+
+  // ---------- COMMS (data rate Mbps by distance class) ----------
+  const COMMS = [
+    { id: 'uhf', name: 'UHF radio', mass: 1, power: 4, cost: 0.3, pointing: 30, risky: false,
+      rate: { near: 0.01, geo: 0, moon: 0, deep: 0, mars: 0 },
+      learn: 'Simple omnidirectional radio (~10 kbps). Works only close to Earth. Fine for telemetry, hopeless for images.' },
+    { id: 'sband', name: 'S-band transceiver', mass: 4, power: 15, cost: 2, pointing: 30, risky: false,
+      rate: { near: 2, geo: 0.5, moon: 0.2, deep: 0.05, mars: 0.002 },
+      learn: 'Reliable workhorse radio for commands and modest data.' },
+    { id: 'xband', name: 'X-band (medium-gain antenna)', mass: 12, power: 40, cost: 8, pointing: 1, risky: false,
+      rate: { near: 150, geo: 20, moon: 10, deep: 2, mars: 0.2 },
+      learn: 'Higher frequency, more focused beam: much faster, but must be pointed.' },
+    { id: 'hga', name: 'X-band high-gain dish (3 m)', mass: 60, power: 100, cost: 25, pointing: 0.1, risky: false,
+      rate: { near: 300, geo: 60, moon: 40, deep: 10, mars: 6 },
+      learn: 'A big dish concentrates the signal into a tight beam — the standard for deep space. Heavy and needs precise pointing.' },
+    { id: 'ka', name: 'Ka-band high-rate system', mass: 25, power: 80, cost: 20, pointing: 0.1, risky: false,
+      rate: { near: 800, geo: 200, moon: 100, deep: 28, mars: 12 },
+      learn: 'Even higher frequency → more data (JWST downlinks ~28 Mbps over Ka-band). Rain on Earth can interrupt it.' },
+    { id: 'laser', name: 'Optical laser terminal (experimental)', mass: 30, power: 120, cost: 35, pointing: 0.01, risky: true,
+      rate: { near: 1200, geo: 1200, moon: 620, deep: 60, mars: 25 },
+      learn: 'Uses light instead of radio — 10–100× faster (NASA demos: 622 Mbps from the Moon). Clouds block it and the technology is still young.' },
+  ];
+
+  // ---------- GROUND NETWORK (contact hours/day by distance class; $M/yr) ----------
+  const GROUND = [
+    { id: 'uni', name: 'University ground station', costYear: 0.3,
+      hours: { near: 0.5, geo: 24, moon: 0, deep: 0, mars: 0 },
+      learn: 'One small dish. A low-orbit satellite is overhead only a few minutes per pass, ~30 min/day.' },
+    { id: 'commercial', name: 'Commercial global network', costYear: 2,
+      hours: { near: 3, geo: 24, moon: 8, deep: 0, mars: 0 },
+      learn: 'Pay-per-pass antennas around the world (including polar sites) → many more contacts per day.' },
+    { id: 'nsn', name: 'NASA Near Space Network', costYear: 4,
+      hours: { near: 6, geo: 24, moon: 12, deep: 0, mars: 0 },
+      learn: 'NASA\'s network of ground stations and relay satellites for Earth orbit and the Moon.' },
+    { id: 'dsn', name: 'Deep Space Network (DSN)', costYear: 5,
+      hours: { near: 0, geo: 0, moon: 16, deep: 8, mars: 8 },
+      learn: 'Giant 34–70 m dishes in California, Spain and Australia, spaced so one always faces deep space. The only way to hear faint signals from L1/L2 or Mars. Time on it is shared by many missions.' },
+  ];
+
+  // ---------- ADCS ----------
+  const ADCS = [
+    { id: 'mtq', name: 'Magnetorquers + magnetometer', pointing: 2, mass: 1, power: 2, cost: 0.5, earthOnly: true, wheels: false,
+      learn: 'Coils push against Earth\'s magnetic field. Cheap and simple, but coarse — and useless away from Earth.' },
+    { id: 'rw', name: 'Reaction wheels + Sun sensors', pointing: 0.1, mass: 10, power: 20, cost: 4, earthOnly: false, wheels: true,
+      learn: 'Spinning wheels twist the spacecraft (Newton\'s 3rd law). Good to ~0.1°.' },
+    { id: 'star', name: 'Star trackers + reaction wheels', pointing: 0.01, mass: 15, power: 30, cost: 10, earthOnly: false, wheels: true,
+      learn: 'Cameras recognise star patterns to know orientation precisely (~0.01°).' },
+    { id: 'fine', name: 'Fine guidance system', pointing: 0.001, mass: 25, power: 45, cost: 25, earthOnly: false, wheels: true,
+      learn: 'Telescope-grade stability (~0.001° and better) using guide stars and ultra-quiet wheels.' },
+  ];
+
+  // ---------- COMPUTER ----------
+  const COMPUTERS = [
+    { id: 'cots', name: 'Commercial processor', radTol: 1, mass: 1, power: 5, cost: 0.5, reduction: 1,
+      learn: 'Fast and cheap phone-class chip. Radiation can flip bits or latch it up.' },
+    { id: 'radtol', name: 'Radiation-tolerant computer', radTol: 2, mass: 4, power: 12, cost: 4, reduction: 1,
+      learn: 'Shielded and error-correcting. Handles most environments.' },
+    { id: 'radhard', name: 'Radiation-hardened (RAD750-class)', radTol: 3, mass: 6, power: 15, cost: 10, reduction: 1,
+      learn: 'Built for the harshest radiation. Slow by modern standards — but it does not crash.' },
+    { id: 'edge', name: 'High-performance + onboard AI', radTol: 2, mass: 5, power: 30, cost: 12, reduction: 0.5,
+      learn: 'Processes data in orbit (compression, cloud filtering, event detection) and sends only what matters: halves your data volume.' },
+  ];
+
+  // ---------- PROPULSION ----------
+  const PROPULSION = [
+    { id: 'none', name: 'No propulsion', isp: 1, dry: 0, cost: 0, power: 0, maxDv: 0, slow: false,
+      learn: 'Lightest and cheapest — but you can never change orbit, dodge debris, or de-orbit.' },
+    { id: 'cold', name: 'Cold-gas thrusters', isp: 70, dry: 3, cost: 1, power: 0, maxDv: 60, slow: false,
+      learn: 'Squirts pressurised gas. Very safe and simple, very weak (low specific impulse).' },
+    { id: 'mono', name: 'Monopropellant (hydrazine)', isp: 225, dry: 15, cost: 6, power: 0, maxDv: 600, slow: false,
+      learn: 'One propellant decomposed over a catalyst. Reliable choice for station-keeping and small manoeuvres.' },
+    { id: 'biprop', name: 'Bipropellant engine', isp: 315, dry: 40, cost: 15, power: 0, maxDv: 2500, slow: false,
+      learn: 'Fuel + oxidiser burned together. High thrust for big orbit-insertion burns at the Moon or Mars.' },
+    { id: 'ion', name: 'Electric (ion) propulsion', isp: 3000, dry: 30, cost: 20, power: 800, maxDv: 5000, slow: true,
+      learn: 'Accelerates ions with electricity: ~10× more efficient than chemical, but thrust is tiny, so transfers take months longer and it needs lots of power.' },
+  ];
+
+  // ---------- THERMAL ----------
+  const THERMAL = [
+    { id: 'passive', name: 'Passive (coatings + insulation)', level: 1, massFrac: 0.02, powerFrac: 0, mass: 0, power: 0, cost: 0.5,
+      learn: 'Blankets and special paints balance heat in and out. Enough for most Earth orbits and L1/L2.' },
+    { id: 'active', name: 'Active (heaters, radiators, heat pipes)', level: 2, massFrac: 0.05, powerFrac: 0.08, mass: 0, power: 0, cost: 3,
+      learn: 'Heaters and loops keep electronics alive through extreme swings — needed around the Moon and Mars.' },
+    { id: 'cryo', name: 'Sunshield + cryocooler', level: 3, massFrac: 0.05, powerFrac: 0.05, mass: 150, power: 200, cost: 60,
+      learn: 'A multi-layer sunshield plus a refrigerator chills detectors below –230 °C. Required for infrared astronomy.' },
+  ];
+
+  // ---------- INSTRUMENTS ----------
+  // pointing: required accuracy in degrees (smaller = harder)
+  const INSTRUMENTS = [
+    { id: 'thermal_ir', name: 'Thermal infrared camera', mass: 20, power: 40, cost: 15, data: 30, value: 25, pointing: 0.1, trl: 9,
+      learn: 'Sees heat: active fires, surface temperatures, cold traps.' },
+    { id: 'multispectral', name: 'Multispectral imager', mass: 15, power: 30, cost: 10, data: 40, value: 20, pointing: 0.1, trl: 9,
+      learn: 'Images in several colour bands (like Landsat) to map vegetation, burn scars, minerals.' },
+    { id: 'hyperspectral', name: 'Imaging spectrometer', mass: 40, power: 60, cost: 35, data: 200, value: 30, pointing: 0.1, trl: 8,
+      learn: 'Splits light into hundreds of colours to identify minerals and chemistry — huge data volumes.' },
+    { id: 'highres', name: 'High-resolution camera', mass: 60, power: 80, cost: 40, data: 150, value: 30, pointing: 0.01, trl: 9,
+      learn: 'Telescope-camera that resolves details under a metre. Needs precise pointing.' },
+    { id: 'sar', name: 'Radar (SAR / sounder)', mass: 120, power: 250, cost: 60, data: 250, value: 40, pointing: 0.1, trl: 8,
+      learn: 'Makes its own microwaves — sees through clouds, smoke and darkness, and can probe below the surface for ice.' },
+    { id: 'neutron', name: 'Neutron spectrometer', mass: 10, power: 12, cost: 8, data: 0.5, value: 25, pointing: 5, trl: 9,
+      learn: 'Counts neutrons bouncing off the surface. Hydrogen (water ice!) absorbs them, revealing buried ice.' },
+    { id: 'lidar_alt', name: 'Laser altimeter', mass: 20, power: 35, cost: 15, data: 5, value: 20, pointing: 0.1, trl: 9,
+      learn: 'Times laser pulses to the ground to build precise 3-D topography maps.' },
+    { id: 'magnetometer', name: 'Magnetometer', mass: 3, power: 5, cost: 3, data: 0.2, value: 12, pointing: 5, trl: 9,
+      learn: 'Measures magnetic fields (solar wind, planetary fields). Usually on a boom away from spacecraft noise.' },
+    { id: 'plasma', name: 'Solar wind plasma analyzer', mass: 8, power: 10, cost: 6, data: 1, value: 22, pointing: 5, trl: 9,
+      learn: 'Measures speed, density and temperature of solar-wind particles streaming past.' },
+    { id: 'coronagraph', name: 'Coronagraph', mass: 30, power: 30, cost: 25, data: 20, value: 30, pointing: 0.01, trl: 8,
+      learn: 'Blocks the Sun\'s disk to see the faint corona and spot eruptions (CMEs) heading our way.' },
+    { id: 'euv', name: 'Extreme-UV solar imager', mass: 25, power: 40, cost: 28, data: 60, value: 28, pointing: 0.01, trl: 8,
+      learn: 'Images the hot solar atmosphere to catch flares as they erupt.' },
+    { id: 'ir_tel', name: 'Infrared space telescope (2 m)', mass: 600, power: 300, cost: 350, data: 400, value: 90, pointing: 0.001, trl: 7, needsCryo: true,
+      learn: 'Collects ancient, red-shifted light from the first galaxies. Must be kept extremely cold or it is blinded by its own heat.' },
+    { id: 'nir_spec', name: 'Near-infrared spectrograph', mass: 60, power: 60, cost: 80, data: 100, value: 35, pointing: 0.001, trl: 7, needsCryo: true, requires: 'ir_tel',
+      learn: 'Spreads telescope light into spectra to measure distance, age and chemistry of galaxies. Only works behind a telescope.' },
+    { id: 'rad_mon', name: 'Radiation monitor', mass: 2, power: 3, cost: 1, data: 0.1, value: 8, pointing: 30, trl: 9,
+      learn: 'Small detector measuring the local radiation environment — useful for future astronauts.' },
+    { id: 'cube_cam', name: 'CubeSat camera', mass: 1, power: 5, cost: 0.5, data: 2, value: 6, pointing: 2, trl: 9,
+      learn: 'Tiny off-the-shelf camera. Low resolution, but great for outreach pictures.' },
+  ];
+
+  // ---------- SCENARIOS ----------
+  const SCENARIOS = [
+    { id: 'wildfire', name: 'Wildfire Watch', body: 'Earth', level: 'Beginner', budget: 120, years: 3, icon: '🔥',
+      blurb: 'Wildfires are growing more frequent. Build a satellite that spots fires every day and maps the damage they leave.',
+      orbitFit: { sso: 1, leo: 0.85, geo: 0.6 },
+      instFit: { thermal_ir: 1, multispectral: 1, hyperspectral: 0.8, highres: 0.6, sar: 0.7, cube_cam: 0.5, lidar_alt: 0.3, rad_mon: 0.1 },
+      primary: { text: 'Detect active fires every day', anyOf: ['thermal_ir'], why: 'Fires are hot — a thermal infrared camera sees them even through thin smoke.' },
+      secondary: [
+        { text: 'Map burn scars and vegetation recovery', anyOf: ['multispectral', 'hyperspectral', 'highres'] },
+        { text: 'See through thick smoke and clouds', anyOf: ['sar'] },
+      ],
+      sciTarget: 45,
+      real: 'NASA\'s MODIS (Terra & Aqua) and VIIRS instruments detect active fires daily from polar orbits; Landsat maps burn scars; ECOSTRESS measures heat from the ISS.' },
+    { id: 'lunar', name: 'Lunar Ice Hunter', body: 'Moon', level: 'Intermediate', budget: 250, years: 2, icon: '🌙',
+      blurb: 'Future astronauts need water. Find ice hidden in the permanently shadowed craters at the Moon\'s poles and map safe landing zones.',
+      orbitFit: { moon: 1 },
+      instFit: { neutron: 1, sar: 1, lidar_alt: 1, multispectral: 0.8, thermal_ir: 0.8, hyperspectral: 0.9, highres: 0.7, cube_cam: 0.5, rad_mon: 0.4, magnetometer: 0.2 },
+      primary: { text: 'Detect water ice in polar craters', anyOf: ['neutron', 'sar', 'hyperspectral'], why: 'Neutron spectrometers sense hydrogen; radar and spectrometers can spot ice signatures.' },
+      secondary: [
+        { text: 'Map polar terrain for future landings', anyOf: ['lidar_alt', 'highres'] },
+        { text: 'Measure how cold the crater floors are', anyOf: ['thermal_ir'] },
+      ],
+      sciTarget: 60,
+      real: 'Lunar Prospector (1998) found hydrogen at the poles with a neutron spectrometer; LRO\'s LOLA altimeter and Diviner radiometer mapped polar terrain and cold traps; India\'s Chandrayaan-1 carried NASA\'s M3 spectrometer, which detected water.' },
+    { id: 'solar', name: 'Solar Storm Sentinel', body: 'Sun–Earth L1', level: 'Intermediate', budget: 250, years: 5, icon: '☀️',
+      blurb: 'Solar storms can knock out power grids and satellites. Station an early-warning sentinel between the Sun and Earth.',
+      orbitFit: { l1: 1, l2: 0.3, geo: 0.35, sso: 0.25, leo: 0.2 },
+      instFit: { plasma: 1, magnetometer: 1, coronagraph: 1, euv: 1, rad_mon: 0.6, cube_cam: 0.1 },
+      primary: { text: 'Measure the incoming solar wind and its magnetic field', allOf: ['plasma', 'magnetometer'], why: 'Forecasters need both the particle stream and its magnetic direction to predict storm strength.' },
+      secondary: [
+        { text: 'Watch eruptions (CMEs) leave the Sun', anyOf: ['coronagraph'] },
+        { text: 'Image solar flares as they happen', anyOf: ['euv'] },
+      ],
+      sciTarget: 60,
+      real: 'ACE, SOHO and DSCOVR watch the solar wind from L1; NOAA\'s SWFO-L1 continues the job. SOHO\'s coronagraph has tracked thousands of CMEs.' },
+    { id: 'mars', name: 'Red Planet Recon', body: 'Mars', level: 'Advanced', budget: 850, years: 4, icon: '🔴',
+      blurb: 'Where did Mars\' water go? Map minerals that only form in water, scout landing sites, and hunt for buried ice.',
+      orbitFit: { mars: 1 },
+      instFit: { hyperspectral: 1, highres: 1, sar: 1, multispectral: 0.8, thermal_ir: 0.8, neutron: 0.8, lidar_alt: 0.7, magnetometer: 0.5, rad_mon: 0.5, cube_cam: 0.4 },
+      primary: { text: 'Map minerals formed in water', anyOf: ['hyperspectral'], why: 'Clays and salts have unique colour fingerprints only an imaging spectrometer can resolve.' },
+      secondary: [
+        { text: 'Photograph candidate landing sites in detail', anyOf: ['highres'] },
+        { text: 'Detect underground ice', anyOf: ['sar', 'neutron'] },
+      ],
+      sciTarget: 80,
+      real: 'Mars Reconnaissance Orbiter carries HiRISE (high-res camera), CRISM (imaging spectrometer) and SHARAD (radar sounder); Mars Odyssey\'s neutron spectrometer found ground ice.' },
+    { id: 'cosmic', name: 'Cosmic Dawn Observatory', body: 'Sun–Earth L2', level: 'Expert', budget: 1800, years: 5, icon: '🔭',
+      blurb: 'See the first galaxies forming after the Big Bang. Build a cold infrared observatory far from Earth\'s heat.',
+      orbitFit: { l2: 1, l1: 0.5, geo: 0.3, sso: 0.3, leo: 0.25 },
+      instFit: { ir_tel: 1, nir_spec: 1, rad_mon: 0.2, cube_cam: 0.05 },
+      primary: { text: 'Image the earliest galaxies in infrared', anyOf: ['ir_tel'], why: 'Light from the first galaxies is stretched into the infrared by the expansion of the Universe.' },
+      secondary: [
+        { text: 'Measure galaxy spectra to date them', anyOf: ['nir_spec'] },
+      ],
+      sciTarget: 120,
+      real: 'The James Webb Space Telescope orbits L2 behind a five-layer sunshield, downlinking ~57 GB per day over Ka-band through the Deep Space Network.' },
+    { id: 'sandbox', name: 'Sandbox', body: 'Anywhere', level: 'Free play', budget: 5000, years: 3, icon: '🧪', sandbox: true,
+      blurb: 'No mission goal, no real budget pressure. Try anything and see what the physics says.',
+      orbitFit: { leo: 1, sso: 1, geo: 1, l1: 1, l2: 1, moon: 1, mars: 1 },
+      instFit: Object.fromEntries(['thermal_ir','multispectral','hyperspectral','highres','sar','neutron','lidar_alt','magnetometer','plasma','coronagraph','euv','ir_tel','nir_spec','rad_mon','cube_cam'].map(i => [i, 1])),
+      primary: { text: 'Return any science data', anyOf: ['thermal_ir','multispectral','hyperspectral','highres','sar','neutron','lidar_alt','magnetometer','plasma','coronagraph','euv','ir_tel','nir_spec','rad_mon','cube_cam'], why: 'Anything goes!' },
+      secondary: [],
+      sciTarget: 60,
+      real: 'Every real mission started as a sandbox sketch like this one.' },
+  ];
+
+  const byId = (arr, id) => arr.find(x => x.id === id) || null;
+  const get = {
+    orbit: id => byId(ORBITS, id), launcher: id => byId(LAUNCHERS, id), bus: id => byId(BUSES, id),
+    power: id => byId(POWER, id), battery: id => byId(BATTERIES, id), comms: id => byId(COMMS, id),
+    ground: id => byId(GROUND, id), adcs: id => byId(ADCS, id), computer: id => byId(COMPUTERS, id),
+    propulsion: id => byId(PROPULSION, id), thermal: id => byId(THERMAL, id), risk: id => byId(RISK, id),
+    inst: id => byId(INSTRUMENTS, id), scenario: id => byId(SCENARIOS, id), difficulty: id => DIFFICULTY[id],
+  };
+
+  function newDesign(scenarioId, difficultyId) {
+    const sc = get.scenario(scenarioId);
+    return {
+      scenario: scenarioId, difficulty: difficultyId || 'engineer', years: sc ? sc.years : 3, risk: 'C',
+      orbit: null, ground: null, comms: null, instruments: [],
+      bus: null, power: null, battery: null, adcs: null, computer: null, propulsion: null, thermal: null,
+      launcher: null,
+    };
+  }
+
+  // Which choice-fields belong to which role (for ownership/sign-off)
+  const FIELD_ROLE = {
+    years: 'director', risk: 'director', launcher: 'director',
+    orbit: 'flightops', ground: 'flightops', comms: 'flightops',
+    instruments: 'science',
+    bus: 'engineer', power: 'engineer', battery: 'engineer', adcs: 'engineer', computer: 'engineer', propulsion: 'engineer', thermal: 'engineer',
+  };
+  const REQUIRED_FIELDS = ['orbit', 'ground', 'comms', 'bus', 'power', 'battery', 'adcs', 'computer', 'propulsion', 'thermal', 'launcher'];
+
+  const round = (x, n = 1) => { const p = Math.pow(10, n); return Math.round(x * p) / p; };
+
+  // ======================================================================
+  //  ENGINEERING MODEL
+  // ======================================================================
+  function analyze(d) {
+    const sc = get.scenario(d.scenario);
+    const diff = get.difficulty(d.difficulty) || DIFFICULTY.engineer;
+    const orbit = get.orbit(d.orbit), bus = get.bus(d.bus), pw = get.power(d.power), bat = get.battery(d.battery);
+    const comms = get.comms(d.comms), ground = get.ground(d.ground), adcs = get.adcs(d.adcs), comp = get.computer(d.computer);
+    const prop = get.propulsion(d.propulsion), therm = get.thermal(d.thermal), lv = get.launcher(d.launcher);
+    const risk = get.risk(d.risk) || RISK[1];
+    const insts = (d.instruments || []).map(get.inst).filter(Boolean);
+    const years = Math.max(1, d.years || 1);
+
+    const mm = bus ? bus.massMult : 1, pm = bus ? bus.powerMult : 1, cm = bus ? bus.costMult : 1;
+    const missing = REQUIRED_FIELDS.filter(f => !d[f]);
+    if (!insts.length) missing.push('instruments');
+
+    // ---- POWER ----
+    const instPower = insts.reduce((s, i) => s + i.power, 0);
+    const parts = {
+      bus: bus ? bus.basePower : 0, instruments: instPower, comms: comms ? comms.power : 0,
+      adcs: adcs ? adcs.power * pm : 0, computer: comp ? comp.power : 0,
+    };
+    let load = Object.values(parts).reduce((a, b) => a + b, 0);
+    let thermalPower = 0;
+    if (therm) thermalPower = load * therm.powerFrac + therm.power;
+    parts.thermal = thermalPower;
+    load += thermalPower;
+
+    const eclipse = orbit ? orbit.eclipseMin : 0, period = orbit ? orbit.periodMin : 1;
+    const solarFactor = orbit ? orbit.solar : 1;
+    let required = load, availBOL = 0, availEOL = 0;
+    if (pw && pw.type === 'solar') {
+      // array must run the load in sunlight AND recharge what the battery spent in eclipse
+      required = eclipse > 0 ? load * (1 + (eclipse / (period - eclipse)) / CHARGE_EFF) : load;
+      availBOL = pw.watts * solarFactor;
+      availEOL = availBOL * Math.max(0, 1 - SOLAR_DEGRADE * years);
+    } else if (pw && pw.type === 'rtg') {
+      required = load;
+      availBOL = pw.watts;
+      availEOL = pw.watts * Math.max(0, 1 - RTG_DEGRADE * years);
+    }
+    const powerMargin = required > 0 ? (availEOL - required) / required : 0;
+
+    // ---- BATTERY ----
+    const dod = orbit ? orbit.dod : 0.5;
+    let batteryNeed = (bus ? bus.basePower : 0) * 1.0 / 0.7; // survive launch / safe mode for 1 h
+    if (pw && pw.type === 'solar' && eclipse > 0) batteryNeed = Math.max(batteryNeed, load * (eclipse / 60) / dod);
+    if (pw && pw.type === 'rtg') batteryNeed = Math.max(batteryNeed, load * 0.5 / dod); // peaks
+    const batteryWh = bat ? bat.wh : 0;
+
+    // ---- DELTA-V & MASS ----
+    const dvNeedFull = orbit ? orbit.dvInsert + orbit.dvYear * years + orbit.dvDispose : 0;
+    const instMass = insts.reduce((s, i) => s + i.mass, 0);
+    let dryCore = (bus ? bus.mass : 0) + instMass + (pw ? pw.mass : 0) + (bat ? bat.mass : 0) + (comms ? comms.mass : 0)
+      + (adcs ? adcs.mass * mm : 0) + (comp ? comp.mass : 0) + (prop ? prop.dry * mm : 0) + (therm ? therm.mass : 0);
+    const thermalMass = therm ? dryCore * therm.massFrac : 0;
+    const dryMass = (dryCore + thermalMass) * risk.massMult;
+    let dvCap = 0, propMass = 0;
+    if (prop && prop.id !== 'none' && dvNeedFull > 0) {
+      const dvLoad = Math.min(dvNeedFull * 1.1, prop.maxDv); // 10% margin, limited by tank size
+      propMass = dryMass * (Math.exp(dvLoad / (prop.isp * G0)) - 1);
+      dvCap = dvLoad;
+    } else if (prop && prop.id !== 'none') {
+      dvCap = 0; propMass = 0;
+    }
+    const wetMass = dryMass + propMass;
+    const lvCap = lv && orbit ? (lv.cap[orbit.id] || 0) : 0;
+    const massMargin = lvCap > 0 ? (lvCap - wetMass) / lvCap : -1;
+
+    // ---- DATA ----
+    const reduction = comp ? comp.reduction : 1;
+    const dataGen = insts.reduce((s, i) => s + i.data, 0) * reduction; // Gb/day
+    const rate = comms && orbit ? comms.rate[orbit.dist] : 0;
+    const hours = ground && orbit ? ground.hours[orbit.dist] : 0;
+    const dataDown = rate * hours * 3.6; // Mbps * h * 3600 s / 1000 = Gb/day
+    const dataRatio = dataGen > 0 ? dataDown / dataGen : (dataDown > 0 ? 9.99 : 0);
+
+    // ---- POINTING ----
+    const pointNeed = Math.min(30, ...insts.map(i => i.pointing), comms ? comms.pointing : 30);
+    const pointHave = adcs ? adcs.pointing : 99;
+
+    // ---- COST ($M) ----
+    const cost = {
+      bus: bus ? bus.cost : 0, instruments: insts.reduce((s, i) => s + i.cost, 0), power: pw ? pw.cost : 0,
+      battery: bat ? bat.cost : 0, comms: comms ? comms.cost : 0, adcs: adcs ? adcs.cost * cm : 0,
+      computer: comp ? comp.cost : 0, propulsion: prop ? prop.cost * cm : 0,
+      thermal: therm ? (therm.id === 'cryo' ? therm.cost : therm.cost * cm) : 0,
+    };
+    const hardware = Object.values(cost).reduce((a, b) => a + b, 0);
+    const integration = hardware * 0.15;
+    const riskPremium = (hardware + integration) * (risk.costMult - 1);
+    const development = hardware + integration + riskPremium;
+    const launch = lv ? lv.cost : 0;
+    const opsYear = (bus ? bus.opsYear : 0) + (ground ? ground.costYear : 0);
+    const operations = opsYear * years;
+    const total = development + launch + operations;
+    const budget = (sc ? sc.budget : 0) * diff.budgetMult;
+    const reserve = budget - total;
+
+    // ---- SCIENCE POTENTIAL ----
+    const orbitFit = sc && orbit ? (sc.orbitFit[orbit.id] || 0) : 0;
+    const hasCryo = therm && therm.id === 'cryo';
+    const instIds = insts.map(i => i.id);
+    const instScience = insts.map(i => {
+      let fit = sc ? (sc.instFit[i.id] || 0) : 0;
+      let notes = [];
+      if (i.requires && !instIds.includes(i.requires)) { fit *= 0.1; notes.push('needs ' + get.inst(i.requires).name); }
+      let f = 1;
+      if (i.needsCryo && !hasCryo) { f *= 0.05; notes.push('blinded by heat (no cryo)'); }
+      if (adcs && adcs.pointing > i.pointing) { f *= 0.3; notes.push('pointing too coarse'); }
+      return { id: i.id, name: i.name, fit, factor: f, value: i.value * fit * f, notes };
+    });
+    const rawScience = instScience.reduce((s, x) => s + x.value, 0);
+    // until a subsystem is chosen, preview science as if it were adequate
+    const dataFactor = (!comms || !ground || !orbit) ? 1 : Math.min(1, Math.pow(Math.max(0, dataRatio), 0.7));
+    const powerFactor = (!pw || !orbit) ? 1 : (availEOL > 0 && required > 0 ? Math.min(1, availEOL / required) : 0);
+    const sciencePerYear = rawScience * orbitFit * dataFactor * powerFactor; // "science points" at full health over nominal mission
+    const sciencePotential = sc ? sciencePerYear / sc.sciTarget : 0; // 1.0 = target met over nominal life
+
+    // ---- CHECKS ----
+    const checks = [];
+    const add = (id, role, status, label, msg, why) => checks.push({ id, role, status, label, msg, why });
+
+    if (missing.length) add('missing', 'director', 'block', 'Design incomplete',
+      'Still to choose: ' + missing.map(f => FIELD_LABEL[f] || f).join(', ') + '.', 'Every subsystem needs a decision before launch.');
+
+    // Budget
+    if (sc) {
+      if (reserve < 0 && !sc.sandbox) add('budget', 'director', 'block', 'Over budget',
+        `Mission costs $${round(total)}M but only $${round(budget)}M is available.`, 'No agency funds a mission that is over budget. Cheaper launch, fewer instruments, a lower risk class or a shorter mission all reduce cost.');
+      else if (!sc.sandbox && reserve / budget < 0.1) add('budget', 'director', 'warn', 'Thin budget reserve',
+        `Only $${round(reserve)}M (${Math.round(reserve / budget * 100)}%) in reserve.`, 'Real projects keep 10–30% reserve for surprises. Events during the mission may need money.');
+      else add('budget', 'director', 'ok', 'Budget', `$${round(total)}M of $${round(budget)}M — $${round(reserve)}M reserve.`, '');
+    }
+
+    // Launch vehicle
+    if (lv && orbit) {
+      if (!lvCap) add('lv_reach', 'director', 'block', 'Rocket can\'t reach this orbit',
+        `${lv.name} cannot deliver payloads to ${orbit.name}.`, 'Different destinations need different energy. Pick a bigger launcher.');
+      else if (wetMass > lvCap) add('lv_mass', 'director', 'block', 'Too heavy for the rocket',
+        `Spacecraft ${Math.round(wetMass)} kg vs. capacity ${lvCap} kg to ${orbit.short.split(' ·')[0]}.`, 'Every kilogram must be lifted. Reduce mass (smaller bus, lighter instruments, more efficient propulsion) or choose a bigger rocket.');
+      else if (massMargin < 0.1) add('lv_mass', 'director', 'warn', 'Low launch-mass margin',
+        `${Math.round(wetMass)} kg of ${lvCap} kg (${Math.round(massMargin * 100)}% margin).`, 'Spacecraft almost always gain weight during development. Engineers like 10–20% margin.');
+      else add('lv_mass', 'director', 'ok', 'Launch mass', `${Math.round(wetMass)} kg of ${lvCap} kg (${Math.round(massMargin * 100)}% margin).`, '');
+      if (lv.maxBus && bus && BUSES.findIndex(b => b.id === bus.id) > BUSES.findIndex(b => b.id === lv.maxBus))
+        add('lv_bus', 'director', 'block', 'Spacecraft too big for this rocket',
+          `${lv.name} only fits up to a ${get.bus(lv.maxBus).name}.`, 'Rideshare and small rockets have small payload fairings.');
+    }
+
+    // Orbit suits scenario
+    if (sc && orbit && !sc.sandbox) {
+      if (orbitFit === 0) add('orbit_fit', 'flightops', 'block', 'Wrong destination',
+        `${orbit.name} can't accomplish "${sc.primary.text}".`, `This mission's target is ${sc.body}.`);
+      else if (orbitFit < 0.7) add('orbit_fit', 'flightops', 'warn', 'Poor vantage point',
+        `${orbit.name} only gives ${Math.round(orbitFit * 100)}% of the ideal science for this mission.`, 'Where you observe from matters as much as what you carry.');
+    }
+
+    // Payload accommodation
+    if (bus) {
+      if (instMass > bus.payloadMass) add('payload_mass', 'engineer', 'block', 'Instruments too heavy for the bus',
+        `${Math.round(instMass)} kg of instruments; ${bus.name} supports ${bus.payloadMass} kg.`, 'The bus structure is designed around a maximum payload.');
+      if (insts.length > bus.slots) add('payload_slots', 'engineer', 'block', 'Not enough instrument slots',
+        `${insts.length} instruments; ${bus.name} has ${bus.slots} mounting slots.`, 'Each instrument needs space, a clear field of view and connections.');
+      if (pw && pw.tier > bus.maxPowerTier && pw.type === 'solar') add('power_fit', 'engineer', 'block', 'Solar array too large for bus',
+        `${bus.name} can't carry ${pw.name}.`, 'Bigger arrays need a stronger structure and drive motors.');
+      if (pw && pw.type === 'rtg' && !bus.rtgOk) add('power_fit', 'engineer', 'block', 'RTG needs a bigger bus', 'Only Medium or Flagship spacecraft can host an RTG.', 'RTGs are heavy and hot.');
+    }
+
+    // Power
+    if (pw && orbit) {
+      if (powerMargin < 0) add('power', 'engineer', 'fail', 'Power deficit',
+        `Need ${Math.round(required)} W, end-of-life supply ${Math.round(availEOL)} W.`,
+        (eclipse > 0 ? `In this orbit the arrays must also recharge the battery after ${eclipse} min of shadow each orbit. ` : '') +
+        (solarFactor < 1 ? `Sunlight here is only ${Math.round(solarFactor * 100)}% of Earth's. ` : '') +
+        'Instruments will have to take turns (duty-cycling), cutting science.');
+      else if (powerMargin < 0.15) add('power', 'engineer', 'warn', 'Low power margin',
+        `${Math.round(powerMargin * 100)}% margin (${Math.round(availEOL)} W vs ${Math.round(required)} W needed).`, 'Solar cells degrade ~2.5% per year in space. A micrometeoroid hit could push you into deficit.');
+      else add('power', 'engineer', 'ok', 'Power', `${Math.round(availEOL)} W supply vs ${Math.round(required)} W needed (${Math.round(powerMargin * 100)}% margin).`, '');
+      if (prop && prop.power > 0 && availBOL < prop.power) add('ion_power', 'engineer', 'fail', 'Not enough power for ion engine',
+        `Ion thrusters need ${prop.power} W; arrays give ${Math.round(availBOL)} W.`, 'Electric propulsion trades propellant for electricity.');
+    }
+    // Battery
+    if (bat && orbit) {
+      if (batteryWh < batteryNeed) add('battery', 'engineer', 'fail', 'Battery too small',
+        `Need ${Math.round(batteryNeed)} Wh usable-equivalent, have ${batteryWh} Wh.`,
+        eclipse > 0 ? `Each orbit has ${eclipse} min of darkness. Batteries may only be drained to ${Math.round(dod * 100)}% depth or they wear out fast over thousands of cycles.` : 'The battery must carry the spacecraft through launch and safe mode.');
+      else add('battery', 'engineer', 'ok', 'Battery', `${batteryWh} Wh vs ${Math.round(batteryNeed)} Wh needed.`, '');
+    }
+    // Delta-v
+    if (prop && orbit) {
+      const needCore = orbit.dvInsert + orbit.dvYear * years;
+      if (orbit.dvInsert > 0 && dvCap < orbit.dvInsert) add('dv', 'engineer', 'fail', 'Can\'t brake into orbit',
+        `Orbit insertion needs ${orbit.dvInsert} m/s; your propulsion provides ${Math.round(dvCap)} m/s.`, 'Without the capture burn the spacecraft flies right past its target. Choose a higher-performance engine.');
+      else if (dvCap < needCore && orbit.stationKeepLimitsLife) add('dv', 'engineer', 'warn', 'Fuel runs out early',
+        `Needs ${Math.round(needCore)} m/s for ${years} yr; carries ${Math.round(dvCap)} m/s.`, 'Station-keeping burns are needed every year to stay in this orbit. When fuel runs out, the mission ends.');
+      else if (dvCap < needCore) add('dv', 'flightops', 'warn', 'No orbit maintenance',
+        'Without orbit-trim fuel the ground track will drift (−10% science).', 'Small burns keep the orbit and imaging schedule predictable.');
+      else add('dv', 'engineer', 'ok', 'Propulsion (Δv)', `${Math.round(dvCap)} m/s available vs ${Math.round(dvNeedFull)} m/s planned.`, '');
+      if (orbit.dvDispose > 0 && dvCap < dvNeedFull) add('disposal', 'flightops', 'warn', 'No end-of-life disposal',
+        `De-orbit / graveyard burn needs ${orbit.dvDispose} m/s more fuel.`, 'Space-debris rules require satellites to leave crowded orbits after their mission (within 5 years in the US). Dead satellites are collision hazards for everyone.');
+      if (prop.slow && orbit.transitDays > 3) add('ion_slow', 'flightops', 'warn', 'Slow transfer',
+        'Ion propulsion spirals out gently: transfer takes months longer.', 'Low thrust = long journey, but huge fuel savings.');
+    }
+    // Comms
+    if (comms && ground && orbit) {
+      if (rate === 0 || hours === 0) add('link', 'flightops', 'fail', 'No communication link',
+        rate === 0 ? `${comms.name} is too weak to be heard from ${orbit.name}.` : `${ground.name} can't track a spacecraft at ${orbit.name}.`,
+        'Signal strength falls with the square of distance. Deep-space missions need big antennas on both ends.');
+      else if (dataRatio < 1) add('data', 'flightops', 'warn', 'Data bottleneck',
+        `Instruments make ${round(dataGen)} Gb/day; you can downlink ${round(dataDown)} Gb/day (${Math.round(dataRatio * 100)}%).`, 'Data that can\'t be sent home is lost. Faster radio, more ground passes, or onboard processing all help.');
+      else add('data', 'flightops', 'ok', 'Data downlink', `${round(dataDown)} Gb/day capacity vs ${round(dataGen)} Gb/day produced.`, '');
+    }
+    // Pointing
+    if (adcs && orbit) {
+      if (adcs.earthOnly && orbit.body !== 'earth') add('mtq', 'engineer', 'fail', 'Magnetorquers useless here',
+        'There is no strong magnetic field to push against away from Earth.', 'Away from Earth you need reaction wheels or thrusters to point.');
+      if (pointHave > pointNeed) add('pointing', 'engineer', 'warn', 'Pointing not precise enough',
+        `Payload needs ${pointNeed}°; attitude control gives ${pointHave}°.`, 'Blurry images and a wobbling antenna beam. Affected instruments return ~30% of their science.');
+      else if (insts.length) add('pointing', 'engineer', 'ok', 'Pointing', `${pointHave}° achieved vs ${pointNeed}° required.`, '');
+    }
+    // Radiation
+    if (comp && orbit && comp.radTol < orbit.radiation) add('radiation', 'engineer', 'warn', 'Radiation risk',
+      `${orbit.name} is a harsh radiation environment for a ${comp.name.toLowerCase()}.`, 'Energetic particles flip memory bits and can latch up chips. Expect resets and possible failure.');
+    // Thermal
+    if (therm && orbit && therm.level < orbit.thermal) add('thermal', 'engineer', 'warn', 'Thermal risk',
+      `${orbit.name} has extreme temperature swings; passive thermal control is marginal.`, 'Electronics that get too hot or cold fail. Heaters and radiators keep them in range.');
+    insts.filter(i => i.needsCryo).forEach(i => { if (!hasCryo) add('cryo_' + i.id, 'engineer', 'fail', 'Infrared instrument too warm',
+      `${i.name} needs a sunshield + cryocooler.`, 'A warm infrared telescope glows in its own detectors, drowning the faint signal.'); });
+    // Instrument relevance
+    instScience.filter(x => x.fit === 0 && sc && !sc.sandbox).forEach(x => add('fit_' + x.id, 'science', 'warn', 'Instrument off-mission',
+      `${x.name} adds nothing to this mission's goals.`, 'Every instrument costs mass, power and money. Carry only what the science needs.'));
+    insts.filter(i => i.requires && !instIds.includes(i.requires)).forEach(i => add('req_' + i.id, 'science', 'fail', 'Missing companion instrument',
+      `${i.name} needs the ${get.inst(i.requires).name}.`, 'Some instruments only work as part of a larger system.'));
+    // Primary objective possible?
+    if (sc && insts.length) {
+      const ok = objectivePossible(sc.primary, instIds);
+      if (!ok) add('primary', 'science', 'fail', 'Primary objective impossible',
+        `No instrument can "${sc.primary.text}".`, sc.primary.why);
+      else add('primary', 'science', 'ok', 'Primary objective', `Payload can ${sc.primary.text.toLowerCase()}.`, '');
+    }
+    // Low TRL / experimental
+    if (comms && comms.risky) add('trl', 'flightops', 'warn', 'Experimental technology', 'Laser comms are still being proven: expect occasional outages.', 'Technology Readiness Level (TRL) measures how proven a technology is (1 = idea, 9 = flown many times).');
+
+    const order = { block: 0, fail: 1, warn: 2, ok: 3 };
+    checks.sort((a, b) => order[a.status] - order[b.status]);
+
+    const roleGoals = {
+      director: reserve >= 0.1 * budget,
+      science: sciencePotential >= 1,
+      engineer: powerMargin >= 0.2 && massMargin >= 0.15,
+      flightops: dataRatio >= 1.5 && (!orbit || !orbit.dvDispose || dvCap >= dvNeedFull),
+    };
+
+    return {
+      scenario: sc, diff, orbit, bus, years, risk, insts, missing,
+      power: { load, required, availBOL, availEOL, margin: powerMargin, parts, eclipse, solarFactor },
+      battery: { need: batteryNeed, have: batteryWh, dod },
+      mass: { dry: dryMass, prop: propMass, wet: wetMass, cap: lvCap, margin: massMargin, instMass, payloadCap: bus ? bus.payloadMass : 0 },
+      dv: { need: dvNeedFull, cap: dvCap },
+      data: { gen: dataGen, down: dataDown, ratio: dataRatio, rate, hours },
+      pointing: { need: pointNeed, have: pointHave },
+      cost: { parts: cost, hardware, integration, riskPremium, development, launch, operations, opsYear, total, budget, reserve },
+      science: { perInst: instScience, raw: rawScience, orbitFit, dataFactor, powerFactor, perYear: sciencePerYear, potential: sciencePotential },
+      checks,
+      blocks: checks.filter(c => c.status === 'block'),
+      fails: checks.filter(c => c.status === 'fail'),
+      warns: checks.filter(c => c.status === 'warn'),
+      roleGoals,
+    };
+  }
+
+  function objectivePossible(obj, instIds) {
+    if (obj.allOf) return obj.allOf.every(i => instIds.includes(i));
+    return obj.anyOf.some(i => instIds.includes(i));
+  }
+
+  const FIELD_LABEL = {
+    orbit: 'orbit', ground: 'ground stations', comms: 'radio', bus: 'spacecraft bus', power: 'power source', battery: 'battery',
+    adcs: 'attitude control', computer: 'flight computer', propulsion: 'propulsion', thermal: 'thermal control', launcher: 'launch vehicle',
+    instruments: 'instruments',
+  };
+
+  // ======================================================================
+  //  RANDOM NUMBERS
+  // ======================================================================
+  function rng(seed) {
+    let a = seed >>> 0;
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  // ======================================================================
+  //  DECISION EVENTS
+  // ======================================================================
+  // Each event: when(ctx) -> applicable; choices: [{label, detail, enabled(ctx), apply(ctx)->text}]
+  const EVENTS = [
+    { id: 'storm', title: 'Solar storm incoming!', icon: '☀️',
+      text: 'Forecasters see a coronal mass ejection heading our way. Charged particles arrive in ~18 hours.',
+      learn: 'Solar storms flood electronics with energetic particles. Operators often put spacecraft into "safe mode" — a minimal, protected state — until it passes.',
+      when: c => true,
+      choices: [
+        { label: 'Enter safe mode', detail: 'Lose ~2 weeks of observations. No risk.', apply: c => { c.lostMonths += 0.5; return 'Spacecraft rode out the storm safely in safe mode.'; } },
+        { label: 'Keep observing', detail: 'Keep collecting data. Risky without radiation-hardened electronics.',
+          apply: c => {
+            const tol = c.m.orbit ? (get.computer(c.d.computer).radTol - c.m.orbit.radiation) : 0;
+            const p = tol >= 0 ? 0.1 : 0.45;
+            if (c.sc.id === 'solar') c.bonus += 0.06;
+            if (c.r() < p) { c.health -= 0.15; c.lostMonths += 1; return 'A memory upset rebooted the flight computer. Recovered after a month, with some lasting damage.' + (c.sc.id === 'solar' ? ' But the storm data itself is priceless!' : ''); }
+            return 'Electronics held up' + (c.sc.id === 'solar' ? ' — and you captured a superb storm measurement (+science)!' : '. No harm done.');
+          } },
+      ] },
+    { id: 'wheel', title: 'Reaction wheel friction rising', icon: '⚙️',
+      text: 'Telemetry shows one reaction wheel drawing extra current — a sign of bearing wear.',
+      learn: 'Reaction-wheel failures have ended or crippled real missions (Kepler lost two wheels). Redundant wheels are a classic reason to pay for a higher risk class.',
+      when: c => { const a = get.adcs(c.d.adcs); return a && a.wheels; },
+      choices: [
+        { label: 'Switch to backup wheel', detail: 'Only available with Class B/A redundancy.', enabled: c => c.m.risk.redundancy,
+          apply: c => 'Backup wheel spun up. Pointing nominal — redundancy paid off.' },
+        { label: 'Fund a software workaround ($3M)', detail: 'Engineers rewrite control software to use fewer wheels.', enabled: c => c.reserve >= 3,
+          apply: c => { c.reserve -= 3; c.health -= 0.03; return 'New software keeps the spacecraft pointing with reduced agility.'; } },
+        { label: 'Keep running it', detail: 'Free, but the wheel may seize.', apply: c => {
+          if (c.r() < 0.5) { c.health -= 0.2; return 'The wheel seized. Pointing degraded — images now often blurred.'; }
+          return 'The wheel stabilised. Lucky!'; } },
+      ] },
+    { id: 'ground', title: 'Ground station outage', icon: '📡',
+      text: 'A storm damaged your primary ground antenna. Repairs take 3 weeks.',
+      learn: 'Ground segment is part of the mission! Spacecraft store data on board, but memory is limited.',
+      when: c => true,
+      choices: [
+        { label: 'Buy extra passes ($2M)', detail: 'Rent antennas from another network.', enabled: c => c.reserve >= 2,
+          apply: c => { c.reserve -= 2; return 'Backup antennas kept data flowing. No loss.'; } },
+        { label: 'Store data on board', detail: 'Free. Onboard memory fills up and some data is overwritten.', apply: c => {
+          const edge = c.d.computer === 'edge';
+          c.lostMonths += edge ? 0.2 : 0.6;
+          return edge ? 'Onboard processing compressed data — only a little was lost.' : 'Memory filled up after a week; about half the data from the outage was lost.'; } },
+      ] },
+    { id: 'debris', title: 'Collision alert!', icon: '💥',
+      text: 'A defunct rocket body may pass within 150 m. Probability of collision: 1 in 300.',
+      learn: 'Thousands of debris pieces are tracked. Operators perform "collision avoidance manoeuvres" when risk exceeds ~1 in 10,000. Without propulsion you can only watch.',
+      when: c => c.m.orbit && c.m.orbit.body === 'earth' && c.m.orbit.id !== 'geo',
+      choices: [
+        { label: 'Fire thrusters to dodge', detail: 'Uses a little propellant.', enabled: c => c.d.propulsion !== 'none' && c.m.dv.cap > 0,
+          apply: c => { c.dvUsed += 1; return 'Avoidance burn complete. Debris passed 4 km away.'; } },
+        { label: 'Accept the risk', detail: 'No fuel spent.', apply: c => {
+          if (c.r() < 0.05) { c.health = 0; return 'Impact! The spacecraft broke apart — and created new debris.'; }
+          return 'The debris passed by harmlessly. Phew.'; } },
+      ] },
+    { id: 'anomaly', title: 'Instrument anomaly', icon: '🔬',
+      text: 'One science instrument is returning noisy data after a power glitch.',
+      learn: 'Operators diagnose problems from telemetry alone — nobody can visit. "Turn it off and on again" is genuinely a space-ops technique.',
+      when: c => true,
+      choices: [
+        { label: 'Reboot & recalibrate', detail: '70% chance of full fix; could make it worse.', apply: c => {
+          if (c.r() < 0.7) return 'Recalibration worked. Data is clean again.';
+          c.health -= 0.12; return 'Reboot failed: the instrument now runs in a degraded mode.'; } },
+        { label: 'Run in reduced mode', detail: 'Safe, small permanent loss.', apply: c => { c.health -= 0.05; return 'Instrument operating in safe reduced mode.'; } },
+      ] },
+    { id: 'discovery', title: 'Unexpected discovery!', icon: '✨',
+      text: 'Scientists spotted something unusual and want to re-plan observations to study it.',
+      learn: 'Many of the biggest discoveries were unplanned. Flexible operations — and a budget reserve — let missions chase surprises.',
+      when: c => true,
+      choices: [
+        { label: 'Re-plan observations ($2M)', detail: 'Extra operations work. Big science payoff.', enabled: c => c.reserve >= 2,
+          apply: c => { c.reserve -= 2; c.bonus += 0.12; return 'The new observations made headlines! (+12% science)'; } },
+        { label: 'Stick to the plan', detail: 'Keep the schedule and the money.', apply: c => 'Observations continued as planned.' },
+      ] },
+    { id: 'budgetcut', title: 'Operations budget cut', icon: '💸',
+      text: 'The agency is short of money and cuts your operations funding by 20% for the rest of the mission.',
+      learn: 'Missions compete for funding every year. A reserve protects the science.',
+      when: c => true,
+      choices: [
+        { label: 'Cover it from reserve', detail: 'Pay the difference.', enabled: c => c.reserve >= c.cutCost(),
+          apply: c => { const x = c.cutCost(); c.reserve -= x; return `Paid $${round(x)}M from reserve. Operations unchanged.`; } },
+        { label: 'Reduce operations', detail: 'Fewer ground passes and staff: −15% data for the rest of the mission.',
+          apply: c => { c.opsFactor *= 0.85; return 'Operations scaled back. Science return reduced.'; } },
+      ] },
+    { id: 'mmod', title: 'Micrometeoroid strike', icon: '☄️',
+      text: 'A sand-grain-sized particle punched through a solar panel at 10 km/s, cutting power by 10%.',
+      learn: 'Power margin is your insurance policy against damage like this.',
+      when: c => get.power(c.d.power) && get.power(c.d.power).type === 'solar',
+      choices: [
+        { label: 'Assess the damage', detail: 'See if the power margin absorbs it.', apply: c => {
+          const m = c.m.power.margin;
+          if (m >= 0.12) return 'Your power margin absorbed the loss. Operations continue normally.';
+          c.health -= 0.12; return 'With little margin, instruments must now take turns. Science reduced.'; } },
+      ] },
+  ];
+
+  // ======================================================================
+  //  SIMULATION
+  // ======================================================================
+  function createSim(d, seed) {
+    const m = analyze(d);
+    const r = rng(seed || (Date.now() & 0xffffffff));
+    const diff = m.diff;
+    const lv = get.launcher(d.launcher), pw = get.power(d.power), prop = get.propulsion(d.propulsion);
+    const totalMonths = Math.round(m.years * 12);
+    const sc = m.scenario;
+
+    // effective operating life limited by station-keeping fuel
+    let lifeMonths = totalMonths;
+    if (m.orbit && m.orbit.stationKeepLimitsLife && m.orbit.dvYear > 0) {
+      const dvForOps = m.dv.cap - m.orbit.dvInsert;
+      const yearsFuel = Math.max(0, dvForOps / m.orbit.dvYear);
+      lifeMonths = Math.min(totalMonths, Math.floor(yearsFuel * 12));
+    }
+
+    // hazard per month
+    let hazard = 0.0012 * m.risk.hazMult * diff.hazardMult;
+    const comp = get.computer(d.computer), therm = get.thermal(d.thermal);
+    if (comp && m.orbit && comp.radTol < m.orbit.radiation) hazard += 0.006 * (m.orbit.radiation - comp.radTol) * diff.hazardMult;
+    if (therm && m.orbit && therm.level < m.orbit.thermal) hazard += 0.006 * diff.hazardMult;
+    if (m.battery.have < m.battery.need) hazard += 0.02 * diff.hazardMult;
+    if (get.comms(d.comms) && get.comms(d.comms).risky) hazard += 0.002;
+
+    const ctx = {
+      d, m, sc, r, health: 1, lostMonths: 0, bonus: 0, opsFactor: 1, reserve: Math.max(0, m.cost.reserve), dvUsed: 0,
+      cutCost: () => 0.2 * m.cost.opsYear * Math.max(0, (totalMonths - ctx.month) / 12),
+      month: 0,
+    };
+
+    // pick decision events
+    const nEvents = Math.min(diff.events, Math.max(1, Math.floor(totalMonths / 6)));
+    const pool = EVENTS.filter(e => e.when(ctx));
+    const picked = [];
+    const poolCopy = pool.slice();
+    while (picked.length < nEvents && poolCopy.length) picked.push(poolCopy.splice(Math.floor(r() * poolCopy.length), 1)[0]);
+    const eventMonths = picked.map((e, i) => Math.max(1, Math.round(((i + 1) / (picked.length + 1)) * Math.min(totalMonths, Math.max(lifeMonths, 2)))));
+
+    const sim = {
+      ctx, m, totalMonths, lifeMonths, phase: 'prelaunch', log: [], done: false, outcome: null,
+      science: 0, scienceMax: m.science.perYear * m.years, extendedMonths: 0, transitDays: m.orbit ? m.orbit.transitDays * (prop && prop.slow ? 3 : 1) : 0,
+      pendingEvent: null, events: picked.map((e, i) => ({ event: e, month: eventMonths[i], done: false })),
+      lost: false, lostReason: '', insertionFailed: false, decisions: [],
+    };
+    const log = (t, kind = 'info') => sim.log.push({ t, kind, month: ctx.month });
+
+    sim.step = function () {
+      if (sim.done || sim.pendingEvent) return;
+      switch (sim.phase) {
+        case 'prelaunch':
+          log(`T-0: ${lv.name} lifts off carrying ${Math.round(m.mass.wet)} kg.`, 'phase');
+          sim.phase = 'launch'; return;
+        case 'launch': {
+          let rel = lv.reliability; if (diff.launchSafe) rel = 1;
+          if (r() > rel) { sim.lost = true; sim.lostReason = 'Launch vehicle failure'; log('Launch failure! The rocket did not reach orbit.', 'bad'); return sim.finish(); }
+          log('Nominal ascent. Spacecraft separated from the rocket.', 'good');
+          sim.phase = 'deploy'; return;
+        }
+        case 'deploy': {
+          const hasDeploy = pw && pw.type === 'solar' && pw.tier > 0;
+          const p = (hasDeploy ? 0.015 : 0.003) * m.risk.hazMult * diff.hazardMult;
+          if (r() < p) { ctx.health -= 0.35; log('A solar panel only partially deployed! Power permanently reduced.', 'bad'); }
+          else log(hasDeploy ? 'Solar arrays and antennas deployed. Power positive!' : 'Systems checked out. Power positive!', 'good');
+          sim.phase = sim.transitDays > 3 ? 'cruise' : 'ops';
+          if (sim.phase === 'ops') log(`Arrived in ${m.orbit.name}. Science operations begin.`, 'phase');
+          return;
+        }
+        case 'cruise': {
+          log(`Cruise: ${Math.round(sim.transitDays)} days to ${m.orbit.name}.`, 'phase');
+          if (m.orbit.dvInsert > 0) sim.phase = 'insertion'; else { sim.phase = 'ops'; log(`Arrived at ${m.orbit.name}. Science operations begin.`, 'phase'); }
+          return;
+        }
+        case 'insertion': {
+          if (m.dv.cap < m.orbit.dvInsert) {
+            sim.insertionFailed = true; sim.lost = true; sim.lostReason = 'Not enough propellant for orbit insertion';
+            sim.science += m.science.perYear * 0.03; // quick flyby snapshots
+            log(`Insertion burn needs ${m.orbit.dvInsert} m/s but only ${Math.round(m.dv.cap)} m/s available. The spacecraft flew past ${m.scenario.body === 'Mars' ? 'Mars' : 'the Moon'}.`, 'bad');
+            return sim.finish();
+          }
+          if (r() < 0.01 * m.risk.hazMult * diff.hazardMult) { sim.lost = true; sim.lostReason = 'Engine anomaly during orbit insertion'; log('Engine anomaly during the capture burn — contact lost.', 'bad'); return sim.finish(); }
+          log(`Orbit insertion burn: ${m.orbit.dvInsert} m/s. Captured into orbit!`, 'good');
+          log('Science operations begin.', 'phase');
+          sim.phase = 'ops'; return;
+        }
+        case 'ops': {
+          const limit = sim.extendedMonths ? totalMonths + sim.extendedMonths : lifeMonths;
+          if (ctx.month >= limit || ctx.health <= 0) return sim.endOps();
+          // scheduled decision event
+          const ev = sim.events.find(e => !e.done && e.month <= ctx.month + 1);
+          if (ev) { ev.done = true; sim.pendingEvent = ev.event; return; }
+          ctx.month++;
+          // science this month
+          const perMonth = m.science.perYear / 12;
+          const dvShort = !m.orbit.stationKeepLimitsLife && m.dv.cap < m.orbit.dvInsert + m.orbit.dvYear * m.years ? 0.9 : 1;
+          sim.science += perMonth * Math.max(0, ctx.health) * ctx.opsFactor * dvShort;
+          // random failure
+          if (r() < hazard) {
+            const fatal = r() < (m.risk.redundancy ? 0.1 : 0.3);
+            const sys = ['power system', 'flight computer', 'star tracker', 'transponder', 'heater circuit', 'instrument electronics'][Math.floor(r() * 6)];
+            if (fatal) { ctx.health = 0; log(`Month ${ctx.month}: critical failure in the ${sys}. Contact lost.`, 'bad'); sim.lost = true; sim.lostReason = `Failure of the ${sys}`; return sim.endOps(); }
+            const hit = m.risk.redundancy ? 0.05 : 0.15;
+            ctx.health -= hit;
+            log(`Month ${ctx.month}: ${sys} fault. ${m.risk.redundancy ? 'Switched to backup unit.' : 'Operating in degraded mode.'}`, 'warn');
+          }
+          if (ctx.month % 12 === 0) log(`Year ${ctx.month / 12} complete. Health ${Math.round(Math.max(0, ctx.health) * 100)}%.`, 'info');
+          return;
+        }
+        case 'extend?': return;
+      }
+    };
+
+    sim.resolve = function (choiceIdx) {
+      const ev = sim.pendingEvent; if (!ev) return;
+      const ch = ev.choices[choiceIdx];
+      const result = ch.apply(ctx);
+      sim.decisions.push({ event: ev.title, choice: ch.label, result });
+      log(`${ev.icon} ${ev.title} → ${ch.label}. ${result}`, ctx.health <= 0 ? 'bad' : 'event');
+      sim.pendingEvent = null;
+      if (ctx.health <= 0) { sim.lost = true; sim.lostReason = ev.title; sim.endOps(); }
+    };
+
+    sim.endOps = function () {
+      if (ctx.health > 0 && ctx.month < totalMonths && lifeMonths < totalMonths && ctx.month >= lifeMonths && !sim.extendedMonths) {
+        log(`Station-keeping propellant exhausted after ${Math.round(ctx.month)} months. Mission ended early.`, 'bad');
+      }
+      // extension offer
+      if (ctx.health > 0.5 && !sim.extendedMonths && ctx.month >= totalMonths && !sim.lost) {
+        const dvLeft = m.dv.cap - m.orbit.dvInsert - m.orbit.dvYear * m.years - m.orbit.dvDispose;
+        const canFuel = !m.orbit.stationKeepLimitsLife || dvLeft >= m.orbit.dvYear;
+        sim.extensionOffer = { cost: m.cost.opsYear, canFuel, canPay: ctx.reserve >= m.cost.opsYear };
+        sim.phase = 'extend?';
+        return;
+      }
+      sim.finish();
+    };
+
+    sim.extend = function (yes) {
+      if (yes && sim.extensionOffer && sim.extensionOffer.canFuel && sim.extensionOffer.canPay) {
+        ctx.reserve -= sim.extensionOffer.cost;
+        sim.extendedMonths = 12; sim.phase = 'ops';
+        log(`Extended mission approved (+1 year, $${round(sim.extensionOffer.cost)}M from reserve).`, 'good');
+        sim.extensionOffer = null;
+      } else { sim.extensionOffer = null; sim.finish(); }
+    };
+
+    sim.finish = function () {
+      if (sim.done) return;
+      sim.done = true;
+      sim.science -= (m.science.perYear / 12) * ctx.lostMonths;
+      sim.science = Math.max(0, sim.science) * (1 + ctx.bonus);
+      // disposal
+      sim.disposed = !m.orbit || !m.orbit.dvDispose || (m.dv.cap - ctx.dvUsed >= m.dv.need && !sim.lost);
+      if (m.orbit && m.orbit.dvDispose && !sim.lost) log(sim.disposed ? 'End of life: disposal burn completed — orbit left clean.' : 'End of life: no fuel to dispose — the spacecraft remains as space debris.', sim.disposed ? 'good' : 'warn');
+      if (m.orbit && m.orbit.id === 'leo' && !sim.lost) log('End of life: atmospheric drag will bring the spacecraft down naturally within a few years.', 'good');
+      sim.outcome = score(d, m, sim);
+      log('Mission complete.', 'phase');
+    };
+
+    return sim;
+  }
+
+  // ======================================================================
+  //  SCORING
+  // ======================================================================
+  function score(d, m, sim) {
+    const sc = m.scenario;
+    const sciPct = sc ? sim.science / (sc.sciTarget * m.years) : 0;
+    const instIds = m.insts.map(i => i.id);
+    const opMonths = sim.ctx.month;
+    const minOps = Math.max(3, sim.totalMonths * 0.25);
+    const operatedEnough = !sim.insertionFailed && opMonths >= minOps;
+    const instWorks = id => { const s = m.science.perInst.find(x => x.id === id); return s && s.factor > 0.2 && s.fit > 0; };
+    const objMet = o => operatedEnough && m.data.ratio > 0.2 && (o.allOf ? o.allOf.every(i => instIds.includes(i) && instWorks(i)) : o.anyOf.some(i => instIds.includes(i) && instWorks(i)));
+    const primary = sc ? objMet(sc.primary) : false;
+    const secondary = sc ? sc.secondary.map(o => ({ text: o.text, met: objMet(o) })) : [];
+
+    const sciencePts = Math.round(500 * Math.min(1.3, sciPct));
+    const primaryPts = primary ? 200 : 0;
+    const secondaryPts = secondary.filter(s => s.met).length * 75;
+    const reserveFrac = Math.max(0, sim.ctx.reserve) / m.cost.budget;
+    const efficiencyPts = sc && !sc.sandbox ? Math.round(Math.min(100, reserveFrac * 400)) : 0;
+    const needsDisposal = m.orbit && m.orbit.dvDispose > 0;
+    const sustainPts = needsDisposal ? (sim.disposed ? 50 : -50) : (sim.lost ? 0 : 50);
+    const overridePts = -50 * m.fails.length;
+
+    const fullLife = sim.ctx.month >= sim.totalMonths;
+    let outcome;
+    if (sim.lost && opMonths < minOps) outcome = 'failure';
+    else if (primary && fullLife && sciPct >= 0.75) outcome = 'success';
+    else if (primary || sciPct >= 0.3) outcome = 'partial';
+    else outcome = 'failure';
+
+    const goals = {
+      director: reserveFrac >= 0.1 && outcome === 'success',
+      science: sciPct >= 1,
+      engineer: m.power.margin >= 0.2 && m.mass.margin >= 0.15,
+      flightops: m.data.ratio >= 1.5 && (needsDisposal ? sim.disposed : true),
+    };
+    const goalPts = Object.values(goals).filter(Boolean).length * 40;
+    const total = Math.max(0, sciencePts + primaryPts + secondaryPts + efficiencyPts + sustainPts + overridePts + goalPts);
+    const stars = total >= 1100 ? 3 : total >= 800 ? 2 : total >= 450 ? 1 : 0;
+
+    return { sciPct, sciencePts, primary, primaryPts, secondary, secondaryPts, efficiencyPts, reserveFrac, sustainPts, overridePts,
+      goals, goalPts, total, stars, outcome, opMonths, fullLife };
+  }
+
+  // ======================================================================
+  //  DESIGN CODES (share / compare)
+  // ======================================================================
+  function encode(d) {
+    const keys = ['scenario','difficulty','years','risk','orbit','ground','comms','instruments','bus','power','battery','adcs','computer','propulsion','thermal','launcher'];
+    const arr = keys.map(k => d[k]);
+    const json = JSON.stringify(arr);
+    const b64 = typeof btoa === 'function' ? btoa(unescape(encodeURIComponent(json))) : Buffer.from(json).toString('base64');
+    return 'MA1-' + b64;
+  }
+  function decode(code) {
+    try {
+      const s = code.trim().replace(/^MA1-/, '');
+      const json = typeof atob === 'function' ? decodeURIComponent(escape(atob(s))) : Buffer.from(s, 'base64').toString();
+      const arr = JSON.parse(json);
+      const keys = ['scenario','difficulty','years','risk','orbit','ground','comms','instruments','bus','power','battery','adcs','computer','propulsion','thermal','launcher'];
+      const d = {}; keys.forEach((k, i) => d[k] = arr[i]);
+      if (!get.scenario(d.scenario)) return null;
+      if (!Array.isArray(d.instruments)) d.instruments = [];
+      return d;
+    } catch (e) { return null; }
+  }
+
+  return { ROLES, ROLE_ORDER, DIFFICULTY, RISK, ORBITS, LAUNCHERS, BUSES, POWER, BATTERIES, COMMS, GROUND, ADCS, COMPUTERS,
+    PROPULSION, THERMAL, INSTRUMENTS, SCENARIOS, EVENTS, FIELD_ROLE, FIELD_LABEL, REQUIRED_FIELDS,
+    get, newDesign, analyze, createSim, score, rng, encode, decode, round, objectivePossible };
+})();
+if (typeof module !== 'undefined') module.exports = GAME;
+</script>
+<script>/* ==========================================================================
+   MISSION ARCHITECT — SVG visuals (spacecraft builder + orbit diagrams)
+   ========================================================================== */
+const VIS = (() => {
+  const G = GAME;
+
+  function panel(x, y, w, h) {
+    let cells = '';
+    const cw = w / Math.max(1, Math.round(w / 8)), ch = h / Math.max(1, Math.round(h / 8));
+    for (let cx = x + cw; cx < x + w - 0.5; cx += cw) cells += `<line x1="${cx}" y1="${y}" x2="${cx}" y2="${y + h}"/>`;
+    for (let cy = y + ch; cy < y + h - 0.5; cy += ch) cells += `<line x1="${x}" y1="${cy}" x2="${x + w}" y2="${cy}"/>`;
+    return `<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="1.5" fill="url(#cell)" stroke="#8fb3ff" stroke-width="0.8"/><g stroke="#24407a" stroke-width="0.5">${cells}</g></g>`;
+  }
+
+  function craft(d) {
+    const bus = G.get.bus(d.bus) ? d.bus : null;
+    const size = { cube: [34, 34], small: [58, 52], medium: [82, 72], large: [104, 88] }[bus || 'small'];
+    const [bw, bh] = size; const cx = 160, cy = 108;
+    const bx = cx - bw / 2, by = cy - bh / 2;
+    const pw = G.get.power(d.power);
+    const comms = d.comms, insts = d.instruments || [];
+    const therm = d.thermal, prop = d.propulsion, adcs = d.adcs;
+    let back = '', front = '', top = '', bottom = '';
+
+    // sunshield (cryo) behind & below
+    if (therm === 'cryo') {
+      for (let i = 0; i < 5; i++) {
+        const o = i * 4;
+        back += `<polygon points="${cx - 120 + o},${cy + bh / 2 + 20 - i * 2} ${cx},${cy + bh / 2 + 4 - i * 2} ${cx + 120 - o},${cy + bh / 2 + 20 - i * 2} ${cx},${cy + bh / 2 + 36 - i * 2}" fill="${['#b9a3ff', '#c9b6ff', '#d8c9ff', '#e6dbff', '#f3edff'][i]}" opacity="${0.55 + i * 0.08}" stroke="#7d6bd6" stroke-width="0.5"/>`;
+      }
+    }
+
+    // solar arrays
+    if (pw && pw.type === 'solar' && pw.tier > 0) {
+      const spec = { 1: [1, 34, 26], 2: [2, 30, 36], 3: [3, 30, 48], 4: [2, 48, 50] }[Math.min(4, pw.tier)];
+      const [n, w, h] = spec;
+      const gap = 3, boom = 8;
+      for (const side of [-1, 1]) {
+        const startX = side < 0 ? bx - boom : bx + bw + boom;
+        back += `<line x1="${side < 0 ? bx : bx + bw}" y1="${cy}" x2="${startX}" y2="${cy}" stroke="#c9d1e0" stroke-width="2"/>`;
+        for (let i = 0; i < n; i++) {
+          const x = side < 0 ? startX - (i + 1) * w - i * gap : startX + i * (w + gap);
+          back += panel(x, cy - h / 2, w, h);
+          if (pw.id === 'huge') back += `<rect x="${side < 0 ? x - 3 : x + w}" y="${cy - h / 2}" width="3" height="${h}" fill="#9aa6bd"/>`;
+        }
+      }
+    }
+    // RTG
+    if (pw && pw.type === 'rtg') {
+      const rx = bx - 26, ry = cy + bh / 2 - 6;
+      back += `<line x1="${bx}" y1="${cy + bh / 2 - 10}" x2="${rx + 10}" y2="${ry + 4}" stroke="#c9d1e0" stroke-width="2"/>`;
+      back += `<g transform="rotate(-35 ${rx} ${ry})"><rect x="${rx - 7}" y="${ry - 16}" width="14" height="32" rx="3" fill="#59606e" stroke="#9aa6bd"/>` +
+        [...Array(6)].map((_, i) => `<rect x="${rx - 12}" y="${ry - 14 + i * 5.5}" width="24" height="1.6" fill="#7b8496"/>`).join('') + `<circle cx="${rx}" cy="${ry}" r="3" fill="#ff7a3d" opacity=".8"><animate attributeName="opacity" values=".4;.9;.4" dur="2s" repeatCount="indefinite"/></circle></g>`;
+    }
+
+    // IR telescope primary mirror above
+    const hasTel = insts.includes('ir_tel');
+    if (hasTel) {
+      const hx = (q, r) => { const s = 9; return [cx + s * 1.5 * q, cy - bh / 2 - 46 + s * Math.sqrt(3) * (r + q / 2)]; };
+      const cells = [[0, 0], [1, -1], [1, 0], [0, 1], [-1, 1], [-1, 0], [0, -1], [2, -1], [-2, 1], [2, -2], [-2, 2], [1, 1], [-1, -1], [2, 0], [-2, 0]];
+      let mirr = '';
+      cells.forEach(([q, r]) => {
+        if (q === 0 && r === 0) return;
+        const [x, y] = hx(q, r); const pts = [...Array(6)].map((_, k) => { const a = Math.PI / 3 * k; return `${x + 8.6 * Math.cos(a)},${y + 8.6 * Math.sin(a)}`; }).join(' ');
+        mirr += `<polygon points="${pts}" fill="url(#gold)" stroke="#8a6a1f" stroke-width="0.6"/>`;
+      });
+      top += `<line x1="${cx}" y1="${by}" x2="${cx}" y2="${cy - bh / 2 - 30}" stroke="#c9d1e0" stroke-width="3"/>${mirr}<circle cx="${cx}" cy="${cy - bh / 2 - 74}" r="3" fill="#ddd"/><line x1="${cx - 30}" y1="${cy - bh / 2 - 40}" x2="${cx}" y2="${cy - bh / 2 - 74}" stroke="#aab" stroke-width="0.8"/><line x1="${cx + 30}" y1="${cy - bh / 2 - 40}" x2="${cx}" y2="${cy - bh / 2 - 74}" stroke="#aab" stroke-width="0.8"/>`;
+    }
+
+    // bus body
+    const isCube = bus === 'cube';
+    const fill = isCube ? 'url(#alu)' : 'url(#gold)';
+    let busSvg = `<rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="3" fill="${fill}" stroke="${isCube ? '#9aa6bd' : '#8a6a1f'}" stroke-width="1.2"/>`;
+    if (!isCube) busSvg += `<path d="M${bx + 4} ${by + 6} q ${bw / 3} 6 ${bw - 8} -2 M${bx + 4} ${by + bh - 10} q ${bw / 2} -8 ${bw - 8} 3" stroke="#f6dc8c" stroke-width="0.8" fill="none" opacity=".7"/>`;
+    if (isCube) for (let i = 1; i < 3; i++) busSvg += `<line x1="${bx}" y1="${by + i * bh / 3}" x2="${bx + bw}" y2="${by + i * bh / 3}" stroke="#7c8799" stroke-width="0.6"/>`;
+    if (pw && pw.id === 'body') { busSvg += panel(bx + 3, by + 3, bw - 6, bh * 0.45); }
+
+    // instruments on the front face
+    const colors = ['#5ce1e6', '#ff8f6b', '#9b8cff', '#7ee787', '#ffd166', '#ff6bcb'];
+    const shown = insts.filter(i => i !== 'ir_tel');
+    shown.forEach((id, i) => {
+      const cols = Math.min(3, shown.length), rows = Math.ceil(shown.length / 3);
+      const w = Math.min(22, (bw - 10) / cols - 3), h = Math.min(16, (bh * 0.45) / rows - 2);
+      const col = i % 3, row = Math.floor(i / 3);
+      const x = bx + 5 + col * (w + 3), y = by + bh - 6 - (rows - row) * (h + 2);
+      const label = G.get.inst(id).name.split(/[\s-]+/).map(s => s[0]).join('').slice(0, 2).toUpperCase();
+      busSvg += `<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="#141b2d" stroke="${colors[i % 6]}" stroke-width="1.2"/><circle cx="${x + w / 2}" cy="${y + h / 2 - 1}" r="${Math.min(w, h) / 4}" fill="${colors[i % 6]}" opacity=".35"/><text x="${x + w / 2}" y="${y + h / 2 + 2.5}" font-size="6.5" text-anchor="middle" fill="${colors[i % 6]}" font-family="monospace">${label}</text></g>`;
+    });
+
+    // comms hardware on top
+    const topY = by;
+    if (comms === 'uhf') top += `<line x1="${bx + 4}" y1="${topY}" x2="${bx - 14}" y2="${topY - 22}" stroke="#ddd" stroke-width="1"/><line x1="${bx + bw - 4}" y1="${topY}" x2="${bx + bw + 14}" y2="${topY - 22}" stroke="#ddd" stroke-width="1"/>`;
+    if (comms === 'sband') top += `<rect x="${cx + bw / 4 - 6}" y="${topY - 6}" width="12" height="6" fill="#d9dee8"/><line x1="${cx + bw / 4}" y1="${topY - 6}" x2="${cx + bw / 4}" y2="${topY - 18}" stroke="#ddd" stroke-width="1.4"/>`;
+    const dish = (r, col) => `<line x1="${cx + (hasTel ? bw / 3 : 0)}" y1="${topY}" x2="${cx + (hasTel ? bw / 3 : 0)}" y2="${topY - 10}" stroke="#c9d1e0" stroke-width="2"/><ellipse cx="${cx + (hasTel ? bw / 3 : 0)}" cy="${topY - 10 - r * 0.35}" rx="${r}" ry="${r * 0.35}" fill="${col}" stroke="#7d8799"/><line x1="${cx + (hasTel ? bw / 3 : 0)}" y1="${topY - 10 - r * 0.35}" x2="${cx + (hasTel ? bw / 3 : 0)}" y2="${topY - 14 - r * 0.8}" stroke="#aab" stroke-width="1"/>`;
+    if (comms === 'xband') top += dish(10, '#eef1f6');
+    if (comms === 'hga') top += dish(28, '#f4f6fa');
+    if (comms === 'ka') top += dish(18, '#ffe7a3');
+    if (comms === 'laser') top += `<rect x="${cx - 5}" y="${topY - 16}" width="10" height="16" rx="2" fill="#3a4258" stroke="#9aa6bd"/><circle cx="${cx}" cy="${topY - 16}" r="4" fill="#7ee787"><animate attributeName="opacity" values=".3;1;.3" dur="1.4s" repeatCount="indefinite"/></circle>`;
+
+    // star trackers
+    if (adcs === 'star' || adcs === 'fine') top += `<rect x="${bx + bw - 10}" y="${by - 7}" width="6" height="8" fill="#222a3d" stroke="#9aa6bd"/><rect x="${bx + 4}" y="${by - 7}" width="6" height="8" fill="#222a3d" stroke="#9aa6bd"/>`;
+    if (insts.includes('magnetometer')) top += `<line x1="${bx + bw}" y1="${by + 8}" x2="${bx + bw + 36}" y2="${by - 18}" stroke="#c9d1e0" stroke-width="1.2"/><circle cx="${bx + bw + 36}" cy="${by - 18}" r="2.5" fill="#ffd166"/>`;
+
+    // propulsion
+    if (prop && prop !== 'none') {
+      const nw = { cold: 6, mono: 10, biprop: 16, ion: 14 }[prop] || 8;
+      bottom += `<polygon points="${cx - nw / 3},${by + bh} ${cx + nw / 3},${by + bh} ${cx + nw / 2},${by + bh + nw * 0.9} ${cx - nw / 2},${by + bh + nw * 0.9}" fill="#4b5366" stroke="#9aa6bd"/>`;
+      if (prop === 'ion') bottom += `<ellipse cx="${cx}" cy="${by + bh + nw + 6}" rx="5" ry="10" fill="#6fb7ff" opacity=".55"><animate attributeName="opacity" values=".2;.7;.2" dur="1.2s" repeatCount="indefinite"/></ellipse>`;
+    }
+
+    const empty = !bus;
+    return `<svg viewBox="0 0 320 220" class="craft" role="img" aria-label="Spacecraft preview">
+      <defs>
+        <linearGradient id="gold" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#f6d77a"/><stop offset=".5" stop-color="#d4a843"/><stop offset="1" stop-color="#a77d26"/></linearGradient>
+        <linearGradient id="alu" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#e8ecf3"/><stop offset="1" stop-color="#9aa3b5"/></linearGradient>
+        <linearGradient id="cell" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#2a4fa8"/><stop offset="1" stop-color="#16295e"/></linearGradient>
+      </defs>
+      <g class="${empty ? 'craft-empty' : 'float'}">${back}${busSvg}${top}${bottom}${front}</g>
+      ${empty ? '<text x="160" y="200" text-anchor="middle" fill="#7f8aa3" font-size="11">Choose a bus to start building</text>' : ''}
+    </svg>`;
+  }
+
+  // ---------------- orbit diagrams ----------------
+  function orbit(id, opts = {}) {
+    const w = 320, h = 180, big = opts.big;
+    const dot = (path, dur) => `<circle r="${big ? 4 : 3.2}" fill="#ffd166" stroke="#fff" stroke-width="1"><animateMotion dur="${dur}s" repeatCount="indefinite" path="${path}"/></circle>`;
+    const stars = [...Array(40)].map((_, i) => `<circle cx="${(i * 73) % w}" cy="${(i * 41) % h}" r="${i % 5 === 0 ? 1 : 0.5}" fill="#fff" opacity="${0.2 + (i % 4) * 0.15}"/>`).join('');
+    const earth = (x, y, r) => `<circle cx="${x}" cy="${y}" r="${r}" fill="url(#earthg)"/><path d="M${x - r * 0.5} ${y - r * 0.3} q ${r * 0.3} -${r * 0.4} ${r * 0.6} 0 t ${r * 0.4} ${r * 0.5}" stroke="#7ee787" stroke-width="${r / 6}" fill="none" opacity=".6"/>`;
+    const defs = `<defs><radialGradient id="earthg" cx=".35" cy=".35"><stop offset="0" stop-color="#6fb7ff"/><stop offset="1" stop-color="#1b4fa0"/></radialGradient>
+      <radialGradient id="sung" cx=".5" cy=".5"><stop offset="0" stop-color="#fff6c2"/><stop offset=".6" stop-color="#ffc247"/><stop offset="1" stop-color="#ff8a00" stop-opacity="0"/></radialGradient>
+      <radialGradient id="moong" cx=".35" cy=".35"><stop offset="0" stop-color="#e6e6e6"/><stop offset="1" stop-color="#8d8d8d"/></radialGradient>
+      <radialGradient id="marsg" cx=".35" cy=".35"><stop offset="0" stop-color="#ff9a6b"/><stop offset="1" stop-color="#a8381a"/></radialGradient></defs>`;
+    let body = '';
+    const label = (x, y, t, a = 'middle') => `<text x="${x}" y="${y}" fill="#aab4c8" font-size="10" text-anchor="${a}">${t}</text>`;
+    switch (id) {
+      case 'leo': { const p = 'M110,90 a50,50 0 1,0 100,0 a50,50 0 1,0 -100,0'; body = `${earth(160, 90, 40)}<path d="${p}" stroke="#ffd166" stroke-dasharray="3 3" fill="none" opacity=".7"/>${dot(p, 4)}${label(160, 170, 'LEO · 500 km · 95 min orbit')}`; break; }
+      case 'sso': { const p = 'M160,30 a24,60 0 1,0 0.1,0'; body = `${earth(160, 90, 40)}<path d="M160,30 a24,60 0 1,0 0.1,0" stroke="#ffd166" stroke-dasharray="3 3" fill="none" opacity=".7" transform="rotate(8 160 90)"/><g transform="rotate(8 160 90)">${dot(p, 4)}</g>${label(160, 170, 'Sun-synchronous · near-polar · 700 km')}`; break; }
+      case 'geo': { const p = 'M70,90 a90,70 0 1,0 180,0 a90,70 0 1,0 -180,0'; body = `${earth(160, 90, 22)}<path d="${p}" stroke="#ffd166" stroke-dasharray="3 3" fill="none" opacity=".7"/>${dot(p, 12)}${label(160, 172, 'GEO · 35,786 km · 24 h orbit')}`; break; }
+      case 'l1': case 'l2': {
+        const lx = id === 'l1' ? 200 : 290;
+        body = `<circle cx="20" cy="90" r="34" fill="url(#sung)"/>${label(20, 145, 'Sun')}${earth(250, 90, 9)}${label(250, 115, 'Earth')}
+          <circle cx="200" cy="90" r="2" fill="#aab4c8"/>${label(200, 70, 'L1')}<circle cx="290" cy="90" r="2" fill="#aab4c8"/>${label(290, 70, 'L2')}
+          <line x1="40" y1="90" x2="300" y2="90" stroke="#34405a" stroke-dasharray="2 4"/>
+          <ellipse cx="${lx}" cy="90" rx="7" ry="16" stroke="#ffd166" stroke-dasharray="2 2" fill="none" opacity=".8"/>
+          ${dot(`M${lx},74 a7,16 0 1,0 0.1,0`, 6)}${label(160, 170, id === 'l1' ? 'L1 · 1.5 million km toward the Sun' : 'L2 · 1.5 million km away from the Sun')}`; break; }
+      case 'moon': { const p = 'M240,52 a22,38 0 1,0 0.1,0'; body = `${earth(50, 90, 18)}${label(50, 125, 'Earth')}<path d="M68,90 C120,40 190,40 222,80" stroke="#34405a" stroke-dasharray="3 4" fill="none"/><circle cx="240" cy="90" r="30" fill="url(#moong)"/><circle cx="232" cy="78" r="4" fill="#7a7a7a" opacity=".6"/><circle cx="250" cy="100" r="6" fill="#7a7a7a" opacity=".5"/><path d="${p}" stroke="#ffd166" stroke-dasharray="3 3" fill="none" opacity=".8"/>${dot(p, 4)}${label(160, 170, 'Polar lunar orbit · over both poles')}`; break; }
+      case 'mars': { const p = 'M248,58 a34,34 0 1,0 0.1,0'; body = `<circle cx="40" cy="160" r="20" fill="url(#sung)"/>${earth(70, 40, 9)}${label(70, 25, 'Earth')}<path d="M78,44 C160,20 220,40 222,70" stroke="#34405a" stroke-dasharray="3 4" fill="none"/>${label(150, 40, '7-month cruise')}<circle cx="248" cy="92" r="26" fill="url(#marsg)"/><path d="${p}" stroke="#ffd166" stroke-dasharray="3 3" fill="none" opacity=".8"/>${dot(p, 4)}${label(248, 145, 'Mars orbit')}`; break; }
+      default: body = `${label(160, 95, 'Choose an orbit')}`;
+    }
+    return `<svg viewBox="0 0 ${w} ${h}" class="orbitsvg">${defs}${stars}${body}</svg>`;
+  }
+
+  function rocket() {
+    return `<svg viewBox="0 0 120 220" class="rocket"><g class="rocket-body"><path d="M60 10 C72 30 76 60 76 120 L44 120 C44 60 48 30 60 10Z" fill="#e8ecf3" stroke="#9aa6bd"/><circle cx="60" cy="60" r="7" fill="#1b4fa0" stroke="#9aa6bd"/><path d="M44 100 L30 132 L44 124Z M76 100 L90 132 L76 124Z" fill="#c43c3c"/><rect x="50" y="120" width="20" height="8" fill="#59606e"/><path d="M50 128 Q60 190 70 128Z" fill="#ffb547"><animate attributeName="d" values="M50 128 Q60 190 70 128Z;M50 128 Q60 210 70 128Z;M50 128 Q60 190 70 128Z" dur=".25s" repeatCount="indefinite"/></path><path d="M54 128 Q60 165 66 128Z" fill="#fff6c2"/></g></svg>`;
+  }
+
+  return { craft, orbit, rocket };
+})();
+</script>
+<script>/* ==========================================================================
+   MISSION ARCHITECT — user interface
+   ========================================================================== */
+(() => {
+  const G = GAME, V = VIS;
+  const $ = sel => document.querySelector(sel);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const fmt = (x, n = 0) => (Math.round(x * Math.pow(10, n)) / Math.pow(10, n)).toLocaleString('en-US', { maximumFractionDigits: n });
+  const money = x => '$' + fmt(x, x < 10 ? 1 : 0) + 'M';
+
+  const store = {
+    get(k, def) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : def; } catch (e) { return def; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* storage unavailable */ } },
+  };
+
+  const STEPS = [
+    { id: 'mission', name: 'Mission', role: 'director', icon: '🎯' },
+    { id: 'orbit', name: 'Orbit', role: 'flightops', icon: '🪐' },
+    { id: 'payload', name: 'Instruments', role: 'science', icon: '🔬' },
+    { id: 'spacecraft', name: 'Spacecraft', role: 'engineer', icon: '🛰️' },
+    { id: 'comms', name: 'Comms', role: 'flightops', icon: '📡' },
+    { id: 'launch', name: 'Launch', role: 'director', icon: '🚀' },
+    { id: 'review', name: 'Design Review', role: null, icon: '✅' },
+  ];
+
+  const S = {
+    screen: 'home', nPlayers: 1, players: ['Player 1', 'Player 2', 'Player 3', 'Player 4'], team: 'Team Apollo',
+    difficulty: 'engineer', design: null, step: 'mission', signoff: {}, override: false,
+    sim: null, timer: null, speed: 1, paused: false, votes: {}, lastResult: null, modal: null, attempts: 0, eventResult: null,
+  };
+
+  // ---------- helpers ----------
+  const ownerOf = role => G.ROLE_ORDER.indexOf(role) % S.nPlayers;
+  const playerName = i => S.players[i] || `Player ${i + 1}`;
+  const rolesOf = i => G.ROLE_ORDER.filter(r => ownerOf(r) === i);
+  const roleChip = role => { const R = G.ROLES[role]; return `<span class="rolechip" style="--rc:${R.color}">${R.icon} ${R.name}</span>`; };
+  const designKey = () => JSON.stringify(S.design);
+  const hints = () => S.difficulty === 'cadet';
+
+  function setDesign(field, value) {
+    S.design[field] = value;
+    S.signoff = {};
+    S.override = false;
+    render();
+  }
+
+  // ======================================================================
+  //  RENDER ROOT
+  // ======================================================================
+  function render() {
+    const app = $('#app');
+    const scroll = window.scrollY;
+    const mainScroll = $('.main') ? $('.main').scrollTop : 0;
+    let html = '';
+    switch (S.screen) {
+      case 'home': html = renderHome(); break;
+      case 'setup': html = renderSetup(); break;
+      case 'scenario': html = renderScenario(); break;
+      case 'design': html = renderDesign(); break;
+      case 'sim': html = renderSim(); break;
+      case 'report': html = renderReport(); break;
+    }
+    app.innerHTML = html + renderModal();
+    if (S.screen === 'design' && S._keepScroll) { window.scrollTo(0, scroll); if ($('.main')) $('.main').scrollTop = mainScroll; }
+    S._keepScroll = true;
+    if (S.screen === 'sim') updateSimLive();
+  }
+  function go(screen) { S.screen = screen; S._keepScroll = false; window.scrollTo(0, 0); render(); }
+
+  // ======================================================================
+  //  HOME
+  // ======================================================================
+  function renderHome() {
+    const lb = store.get('ma_leaderboard', []);
+    return `<div class="home">
+      <div class="hero">
+        <div class="hero-text">
+          <div class="kicker">NASA Space Apps Challenge 2026 · Space Mission Design Game</div>
+          <h1>Mission<br><span>Architect</span></h1>
+          <p class="lead">Design a real space mission from idea to end-of-life. Pick a science goal, build the spacecraft, choose the orbit and rocket — then launch it and live with every trade-off you made.</p>
+          <div class="cta">
+            <button class="btn primary big" data-a="newgame">🚀 New mission</button>
+            <button class="btn ghost big" data-a="modal" data-v="howto">How to play</button>
+          </div>
+          <div class="cta small">
+            <button class="btn link" data-a="modal" data-v="handbook">📘 Mission Handbook</button>
+            <button class="btn link" data-a="modal" data-v="leaderboard">🏆 Leaderboard${lb.length ? ` (${lb.length})` : ''}</button>
+            <button class="btn link" data-a="modal" data-v="load">📥 Load a design code</button>
+          </div>
+        </div>
+        <div class="hero-art">${V.craft({ bus: 'medium', power: 'largewings', comms: 'hga', instruments: ['hyperspectral', 'highres', 'magnetometer'], propulsion: 'biprop', adcs: 'star' })}</div>
+      </div>
+      <div class="features">
+        <div class="feat"><b>🧩 Everything connects</b><span>Every instrument adds mass, power, data and cost. Watch the whole system react.</span></div>
+        <div class="feat"><b>👥 1–4 players</b><span>Mission Director, Science Lead, Spacecraft Engineer and Flight Ops each own decisions — and goals that pull in different directions.</span></div>
+        <div class="feat"><b>🛰️ Real physics, simply explained</b><span>Rocket equation, eclipse power, link budgets, radiation, debris rules — introduced as you play.</span></div>
+        <div class="feat"><b>🎲 Launch & operate</b><span>Survive solar storms, failing reaction wheels and budget cuts. Get a mission report that explains why.</span></div>
+      </div>
+      <p class="muted small footnote">Built for the NASA Space Apps Challenge 2026. Code drafted with AI assistance (Claude) — see README. Values are simplified for play; relationships follow real mission-design principles.</p>
+    </div>`;
+  }
+
+  // ======================================================================
+  //  SETUP (team + difficulty)
+  // ======================================================================
+  function renderSetup() {
+    const roleRows = [...Array(S.nPlayers)].map((_, i) => `
+      <div class="playerrow">
+        <input class="input" data-a="pname" data-i="${i}" value="${esc(S.players[i])}" maxlength="20" aria-label="Player ${i + 1} name">
+        <div class="roles">${rolesOf(i).map(roleChip).join('')}</div>
+      </div>`).join('');
+    return `<div class="page narrow">
+      <button class="btn link back" data-a="go" data-v="home">← Back</button>
+      <h2>Assemble your mission team</h2>
+      <p class="muted">Play solo (you hold every role) or as a team of up to four sharing one screen. Each role owns part of the design and has a personal goal worth bonus points — negotiate!</p>
+      <div class="card">
+        <label class="lbl">Team name</label>
+        <input class="input" data-a="team" value="${esc(S.team)}" maxlength="28">
+        <label class="lbl">Number of players</label>
+        <div class="seg">${[1, 2, 3, 4].map(n => `<button class="segbtn ${S.nPlayers === n ? 'on' : ''}" data-a="nplayers" data-v="${n}">${n === 1 ? 'Solo' : n + ' players'}</button>`).join('')}</div>
+        <div class="players">${roleRows}</div>
+      </div>
+      <div class="rolegrid">${G.ROLE_ORDER.map(r => { const R = G.ROLES[r]; return `<div class="rolecard" style="--rc:${R.color}"><div class="ri">${R.icon}</div><b>${R.name}</b><small>Owns: ${R.owns}</small><small class="goal">Personal goal: ${R.goal}</small></div>`; }).join('')}</div>
+      <div class="card">
+        <label class="lbl">Difficulty</label>
+        <div class="diffgrid">${Object.values(G.DIFFICULTY).map(dd => `<button class="diff ${S.difficulty === dd.id ? 'on' : ''}" data-a="difficulty" data-v="${dd.id}"><b>${dd.name}</b><small>${dd.desc}</small></button>`).join('')}</div>
+      </div>
+      <div class="right"><button class="btn primary big" data-a="go" data-v="scenario">Choose a mission →</button></div>
+    </div>`;
+  }
+
+  // ======================================================================
+  //  SCENARIO SELECT
+  // ======================================================================
+  function renderScenario() {
+    const diff = G.DIFFICULTY[S.difficulty];
+    return `<div class="page">
+      <button class="btn link back" data-a="go" data-v="setup">← Team</button>
+      <h2>Choose your mission</h2>
+      <p class="muted">Each mission has a science goal, a budget and a planned lifetime. Budgets shown for <b>${diff.name}</b> difficulty.</p>
+      <div class="scgrid">${G.SCENARIOS.map(sc => `
+        <button class="sccard" data-a="scenario" data-v="${sc.id}">
+          <div class="scicon">${sc.icon}</div>
+          <div class="sctop"><b>${sc.name}</b><span class="tag">${sc.level}</span></div>
+          <p>${sc.blurb}</p>
+          <div class="scmeta"><span>📍 ${sc.body}</span><span>💰 ${sc.sandbox ? 'Unlimited' : money(sc.budget * diff.budgetMult)}</span><span>⏳ ${sc.years} yr</span></div>
+          <div class="scobj"><b>Primary goal:</b> ${sc.primary.text}</div>
+        </button>`).join('')}</div>
+    </div>`;
+  }
+
+  // ======================================================================
+  //  DESIGN WORKSPACE
+  // ======================================================================
+  function renderDesign() {
+    const d = S.design, m = G.analyze(d), sc = m.scenario;
+    const step = STEPS.find(s => s.id === S.step);
+    const stepStatus = s => {
+      const map = { mission: ['risk'], orbit: ['orbit'], payload: ['instruments'], spacecraft: ['bus', 'power', 'battery', 'adcs', 'computer', 'propulsion', 'thermal'], comms: ['ground', 'comms'], launch: ['launcher'], review: [] };
+      const f = map[s.id];
+      if (s.id === 'review') return m.blocks.length ? 'todo' : 'done';
+      const done = f.every(k => k === 'instruments' ? d.instruments.length : d[k]);
+      const issues = m.checks.filter(c => (c.status === 'block' || c.status === 'fail') && c.id !== 'missing' && c.role === s.role).length;
+      return !done ? 'todo' : issues ? 'issue' : 'done';
+    };
+    const nav = STEPS.map((s, i) => {
+      const st = stepStatus(s);
+      const owner = s.role ? playerName(ownerOf(s.role)) : 'Whole team';
+      return `<button class="navstep ${S.step === s.id ? 'on' : ''} st-${st}" data-a="step" data-v="${s.id}">
+        <span class="num">${st === 'done' ? '✓' : st === 'issue' ? '!' : i + 1}</span>
+        <span class="nt"><b>${s.icon} ${s.name}</b><small>${s.role ? G.ROLES[s.role].name : 'Sign-off'}${S.nPlayers > 1 ? ' · ' + esc(owner) : ''}</small></span></button>`;
+    }).join('');
+
+    let body = '';
+    switch (S.step) {
+      case 'mission': body = stepMission(d, m); break;
+      case 'orbit': body = stepOrbit(d, m); break;
+      case 'payload': body = stepPayload(d, m); break;
+      case 'spacecraft': body = stepSpacecraft(d, m); break;
+      case 'comms': body = stepComms(d, m); break;
+      case 'launch': body = stepLaunch(d, m); break;
+      case 'review': body = stepReview(d, m); break;
+    }
+    const idx = STEPS.findIndex(s => s.id === S.step);
+    const turn = step.role && S.nPlayers > 1 ? `<div class="turn" style="--rc:${G.ROLES[step.role].color}">🎮 <b>${esc(playerName(ownerOf(step.role)))}</b>, you're up as ${G.ROLES[step.role].name}. Others: advise — but it's their call.</div>` : '';
+    const hintList = hints() && step.role ? m.checks.filter(c => c.role === step.role && c.status !== 'ok' && c.id !== 'missing').slice(0, 2) : [];
+    const hintHtml = hintList.length ? `<div class="hint">💡 <b>Hint:</b> ${hintList.map(c => `${esc(c.label)} — ${esc(c.msg)}`).join('<br>')}</div>` : '';
+
+    return `<div class="topbar">
+        <button class="btn link" data-a="confirmhome">⟵ Exit</button>
+        <div class="tb-title">${sc.icon} <b>${sc.name}</b> <span class="muted">· ${G.DIFFICULTY[d.difficulty].name}</span></div>
+        <div class="tb-team">${[...Array(S.nPlayers)].map((_, i) => `<span class="pchip" title="${rolesOf(i).map(r => G.ROLES[r].name).join(', ')}">${rolesOf(i).map(r => G.ROLES[r].icon).join('')} ${esc(playerName(i))}</span>`).join('')}</div>
+        <button class="btn link" data-a="modal" data-v="handbook">📘 Handbook</button>
+      </div>
+      <div class="workspace">
+        <nav class="steps">${nav}<div class="navfoot"><button class="btn link small" data-a="modal" data-v="share">🔗 Share design code</button></div></nav>
+        <main class="main">
+          ${turn}${hintHtml}
+          ${body}
+          <div class="stepnav">
+            ${idx > 0 ? `<button class="btn ghost" data-a="step" data-v="${STEPS[idx - 1].id}">← ${STEPS[idx - 1].name}</button>` : '<span></span>'}
+            ${idx < STEPS.length - 1 ? `<button class="btn primary" data-a="step" data-v="${STEPS[idx + 1].id}">${STEPS[idx + 1].name} →</button>` : ''}
+          </div>
+        </main>
+        <aside class="side">${renderSide(d, m)}</aside>
+      </div>`;
+  }
+
+  // ---------- option card ----------
+  function optCard(field, opt, d, { stats = [], badge = '', disabled = false, multi = false, extra = '' } = {}) {
+    const on = multi ? d.instruments.includes(opt.id) : d[field] === opt.id;
+    return `<button class="opt ${on ? 'on' : ''} ${disabled ? 'dis' : ''}" data-a="${multi ? 'toggleinst' : 'set'}" data-f="${field}" data-v="${opt.id}" ${disabled ? 'aria-disabled="true"' : ''}>
+      <div class="opt-h"><b>${esc(opt.name)}</b>${badge}</div>
+      ${opt.example ? `<div class="ex">${esc(opt.example)}</div>` : ''}
+      <div class="stats">${stats.filter(Boolean).map(s => `<span>${s}</span>`).join('')}</div>
+      ${opt.learn ? `<div class="learn">${esc(opt.learn)}</div>` : ''}${extra}
+      <span class="check">${on ? '✓' : ''}</span>
+    </button>`;
+  }
+  const sect = (title, intro, inner, cls = '') => `<section class="sect ${cls}"><h3>${title}</h3>${intro ? `<p class="intro">${intro}</p>` : ''}<div class="opts">${inner}</div></section>`;
+
+  // ---------- STEP: mission ----------
+  function stepMission(d, m) {
+    const sc = m.scenario;
+    return `<section class="brief">
+        <div class="briefhead"><span class="bigicon">${sc.icon}</span><div><h2>${sc.name}</h2><div class="muted">Target: ${sc.body} · Budget ${sc.sandbox ? 'unlimited' : money(m.cost.budget)} · Planned life ${sc.years} yr</div></div></div>
+        <p>${sc.blurb}</p>
+        <div class="objectives">
+          <div class="obj primary"><span>PRIMARY</span>${sc.primary.text}<small>${sc.primary.why}</small></div>
+          ${sc.secondary.map(o => `<div class="obj"><span>SECONDARY</span>${o.text}</div>`).join('')}
+        </div>
+      </section>
+      <section class="sect">
+        <h3>Mission duration</h3>
+        <p class="intro">Longer missions return more science but cost more to operate, need more fuel for station-keeping and let solar cells degrade further.</p>
+        <div class="slider"><input type="range" min="1" max="10" step="1" value="${d.years}" data-a="years" aria-label="Mission years"><b>${d.years} year${d.years > 1 ? 's' : ''}</b><span class="muted">Science target assumes ${sc.years} yr. Ops cost ${money(m.cost.opsYear)}/yr.</span></div>
+      </section>
+      ${sect('Risk class', 'How much testing and backup hardware? NASA formally assigns every mission a risk class.',
+        G.RISK.map(r => optCard('risk', r, d, { stats: [`Cost ×${r.costMult}`, `Mass ×${r.massMult}`, r.redundancy ? 'Backups ✓' : 'No backups'] })).join(''))}`;
+  }
+
+  // ---------- STEP: orbit ----------
+  function stepOrbit(d, m) {
+    const sc = m.scenario;
+    const cards = G.ORBITS.map(o => {
+      const fit = sc.orbitFit[o.id] || 0;
+      const badge = sc.sandbox ? '' : fit >= 1 ? '<span class="badge good">Ideal</span>' : fit >= 0.7 ? '<span class="badge ok">Good</span>' : fit > 0 ? `<span class="badge warn">${Math.round(fit * 100)}% science</span>` : '<span class="badge bad">Can\'t reach goal</span>';
+      return optCard('orbit', o, d, { badge, stats: [o.short, o.eclipseMin ? `☾ ${o.eclipseMin} min shadow/orbit` : '☀ Always sunlit', o.dvInsert ? `Capture Δv ${o.dvInsert} m/s` : 'No capture burn', `Radiation ${['', 'low', 'medium', 'high'][o.radiation]}`] });
+    }).join('');
+    return `<div class="orbitview">${V.orbit(d.orbit)}</div>${sect('Where will your spacecraft operate?', 'The orbit sets what you can see, how much sunlight you get, how hard it is to talk home, and how much fuel you need.', cards)}`;
+  }
+
+  // ---------- STEP: payload ----------
+  function stepPayload(d, m) {
+    const sc = m.scenario;
+    const list = G.INSTRUMENTS.slice().sort((a, b) => (sc.instFit[b.id] || 0) - (sc.instFit[a.id] || 0));
+    const cards = list.map(i => {
+      const fit = sc.instFit[i.id] || 0;
+      const stars = fit >= 1 ? '★★★' : fit >= 0.7 ? '★★☆' : fit > 0.2 ? '★☆☆' : '';
+      const prim = (sc.primary.anyOf || sc.primary.allOf || []).includes(i.id) && !sc.sandbox;
+      const badge = `${prim ? '<span class="badge good">Primary goal</span>' : sc.secondary.some(o => o.anyOf.includes(i.id)) ? '<span class="badge ok">Secondary goal</span>' : ''}${stars ? `<span class="stars" title="Science value for this mission">${stars}</span>` : '<span class="badge dim">Off-mission</span>'}`;
+      return optCard('instruments', i, d, { multi: true, badge, stats: [`${i.mass} kg`, `${i.power} W`, money(i.cost), `${i.data} Gb/day`, `Pointing ${i.pointing}°`, i.trl < 9 ? `TRL ${i.trl}` : ''] });
+    }).join('');
+    const sel = m.insts;
+    return `<section class="sect"><h3>Choose your science payload</h3><p class="intro">Instruments are why the mission exists — and they drive everything else. Pick the ones that answer your science question. <b>${sel.length}</b> selected · ${fmt(m.mass.instMass)} kg · ${fmt(sel.reduce((s, i) => s + i.power, 0))} W · ${fmt(sel.reduce((s, i) => s + i.data, 0), 1)} Gb/day</p>
+      ${sc.sandbox ? '' : `<div class="goalbar"><b>Goals:</b> ${goalPill(sc.primary, d)} ${sc.secondary.map(o => goalPill(o, d)).join(' ')}</div>`}
+      <div class="opts">${cards}</div></section>`;
+  }
+  function goalPill(o, d) {
+    const ok = G.objectivePossible(o, d.instruments);
+    return `<span class="gpill ${ok ? 'ok' : ''}">${ok ? '✓' : '○'} ${esc(o.text)}</span>`;
+  }
+
+  // ---------- STEP: spacecraft ----------
+  function stepSpacecraft(d, m) {
+    const bus = G.get.bus(d.bus);
+    const busCards = G.BUSES.map(b => optCard('bus', b, d, { stats: [`${b.mass} kg`, money(b.cost), `Payload ≤ ${b.payloadMass} kg`, `${b.slots} instrument slots`, `Ops ${money(b.opsYear)}/yr`],
+      badge: m.mass.instMass > b.payloadMass || d.instruments.length > b.slots ? '<span class="badge bad">Payload won\'t fit</span>' : '' })).join('');
+    const powerCards = G.POWER.map(p => {
+      const tooBig = bus && ((p.type === 'solar' && p.tier > bus.maxPowerTier) || (p.type === 'rtg' && !bus.rtgOk));
+      const eff = m.orbit && p.type === 'solar' ? p.watts * m.orbit.solar : p.watts;
+      return optCard('power', p, d, { disabled: tooBig, badge: tooBig ? '<span class="badge bad">Bus too small</span>' : '', stats: [`${p.watts} W${m.orbit && m.orbit.solar < 1 && p.type === 'solar' ? ` (${fmt(eff)} W at ${m.orbit.name.split(' ')[0]})` : ''}`, `${p.mass} kg`, money(p.cost)] });
+    }).join('');
+    const batCards = G.BATTERIES.map(b => optCard('battery', b, d, { stats: [`${b.wh} Wh`, `${b.mass} kg`, money(b.cost)], badge: m.orbit && d.power ? (b.wh >= m.battery.need ? '<span class="badge good">Enough</span>' : '<span class="badge warn">Too small</span>') : '' })).join('');
+    const adcsCards = G.ADCS.map(a => optCard('adcs', a, d, { stats: [`±${a.pointing}°`, `${fmt(a.mass * (bus ? bus.massMult : 1), 1)} kg`, `${fmt(a.power * (bus ? bus.powerMult : 1))} W`, money(a.cost * (bus ? bus.costMult : 1))],
+      badge: m.orbit && a.earthOnly && m.orbit.body !== 'earth' ? '<span class="badge bad">Earth only</span>' : d.instruments.length ? (a.pointing <= m.pointing.need ? '<span class="badge good">Meets pointing</span>' : '<span class="badge warn">Too coarse</span>') : '' })).join('');
+    const compCards = G.COMPUTERS.map(c => optCard('computer', c, d, { stats: [`Radiation tolerance ${['', 'low', 'medium', 'high'][c.radTol]}`, `${c.power} W`, money(c.cost), c.reduction < 1 ? 'Data ×0.5' : ''],
+      badge: m.orbit ? (c.radTol >= m.orbit.radiation ? '<span class="badge good">Safe here</span>' : '<span class="badge warn">Radiation risk</span>') : '' })).join('');
+    const propCards = G.PROPULSION.map(p => optCard('propulsion', p, d, { stats: [p.id === 'none' ? '0 m/s' : `Isp ${p.isp} s`, p.maxDv ? `≤ ${p.maxDv} m/s` : '', p.power ? `${p.power} W` : '', money(p.cost * (bus ? bus.costMult : 1))],
+      badge: m.orbit ? (p.maxDv >= m.dv.need ? '<span class="badge good">Enough Δv</span>' : p.maxDv >= m.orbit.dvInsert && m.orbit.dvInsert > 0 ? '<span class="badge warn">Partial</span>' : m.orbit.dvInsert > p.maxDv ? '<span class="badge bad">Can\'t capture</span>' : '<span class="badge warn">Partial</span>') : '' })).join('');
+    const thermCards = G.THERMAL.map(t => optCard('thermal', t, d, { stats: [t.mass ? `+${t.mass} kg` : `+${t.massFrac * 100}% mass`, t.power ? `+${t.power} W` : t.powerFrac ? `+${t.powerFrac * 100}% power` : '0 W', money(t.id === 'cryo' ? t.cost : t.cost * (bus ? bus.costMult : 1))] })).join('');
+
+    const dvNote = m.orbit ? `This orbit needs <b>${fmt(m.dv.need)} m/s</b> of Δv over ${d.years} yr (capture ${m.orbit.dvInsert} + ${m.orbit.dvYear}/yr upkeep + ${m.orbit.dvDispose} disposal). Propellant mass follows the <i>rocket equation</i>: m<sub>prop</sub> = m<sub>dry</sub>·(e<sup>Δv/(Isp·g₀)</sup> − 1) → currently <b>${fmt(m.mass.prop)} kg</b> of propellant.` : 'Choose an orbit first to see how much Δv you need.';
+    const pwrNote = m.orbit ? (m.orbit.eclipseMin ? `In ${m.orbit.name} you spend <b>${m.orbit.eclipseMin} of every ${m.orbit.periodMin} min</b> in shadow, so arrays must power the spacecraft <i>and</i> recharge the battery. Current need: <b>${fmt(m.power.required)} W</b> from arrays.` : `${m.orbit.name} is in constant sunlight. Current need: <b>${fmt(m.power.required)} W</b>.`) + (m.orbit.solar < 1 ? ` Sunlight is only ${Math.round(m.orbit.solar * 100)}% of Earth's here.` : '') : '';
+
+    return [
+      sect('Spacecraft bus', 'The bus is the body: structure, wiring, basic avionics. It sets how much payload you can carry.', busCards),
+      sect('Power source', pwrNote + ' Arrays lose ~2.5% per year, so they\'re sized for end of life.', powerCards),
+      sect('Battery', m.orbit && d.power ? `Battery must cover <b>${fmt(m.battery.need)} Wh</b> (shadow time × load ÷ allowed depth-of-discharge ${Math.round(m.battery.dod * 100)}%).` : 'Stores energy for eclipses, launch and emergencies.', batCards),
+      sect('Attitude control (pointing)', d.instruments.length ? `Your payload and antenna need pointing to <b>±${m.pointing.need}°</b>.` : 'Keeps the spacecraft facing the right way.', adcsCards),
+      sect('Flight computer', m.orbit ? `Radiation in ${m.orbit.name}: <b>${['', 'low', 'medium', 'high'][m.orbit.radiation]}</b>.` : '', compCards),
+      sect('Propulsion', dvNote, propCards),
+      sect('Thermal control', m.orbit && m.orbit.thermal > 1 ? `<b>${m.orbit.name}</b> has extreme temperature swings.` : 'Space is both scorching (in sunlight) and freezing (in shadow).', thermCards),
+    ].join('');
+  }
+
+  // ---------- STEP: comms ----------
+  function stepComms(d, m) {
+    const o = m.orbit;
+    const dist = o ? o.dist : null;
+    const groundCards = G.GROUND.map(g => optCard('ground', g, d, { stats: [money(g.costYear) + '/yr', o ? `${g.hours[dist]} h/day contact here` : ''], badge: o && !g.hours[dist] ? '<span class="badge bad">Can\'t reach</span>' : '' })).join('');
+    const commCards = G.COMMS.map(c => {
+      const rate = o ? c.rate[dist] : null;
+      return optCard('comms', c, d, { stats: [o ? (rate ? `${rate >= 1 ? fmt(rate) : rate} Mbps here` : 'No signal here') : '', `${c.mass} kg`, `${c.power} W`, money(c.cost), `Pointing ${c.pointing}°`],
+        badge: o && !rate ? '<span class="badge bad">Too weak</span>' : c.risky ? '<span class="badge warn">Experimental</span>' : '' });
+    }).join('');
+    const pct = Math.min(200, m.data.ratio * 100);
+    const dataBox = `<div class="databox">
+      <div><small>Produced</small><b>${fmt(m.data.gen, 1)} Gb/day</b></div>
+      <div class="arrow">→</div>
+      <div><small>Downlink = rate × contact time</small><b>${fmt(m.data.rate, 2)} Mbps × ${m.data.hours} h = ${fmt(m.data.down, 1)} Gb/day</b></div>
+      <div class="bar"><i style="width:${pct / 2}%" class="${m.data.ratio >= 1 ? 'ok' : m.data.ratio > 0.5 ? 'warn' : 'bad'}"></i></div>
+      <div class="muted small">${m.data.gen ? `${Math.round(m.data.ratio * 100)}% of your data can reach Earth.` : 'Add instruments to see the data budget.'}</div></div>`;
+    return `${dataBox}${sect('Ground network', o ? `How many hours per day can you talk to the spacecraft from ${o.name}?` : 'Choose an orbit first.', groundCards)}
+      ${sect('Spacecraft radio', 'Signal strength falls with distance squared: a radio that streams video from LEO can barely whisper from Mars.', commCards)}`;
+  }
+
+  // ---------- STEP: launch ----------
+  function stepLaunch(d, m) {
+    const o = m.orbit;
+    const cards = G.LAUNCHERS.map(l => {
+      const cap = o ? (l.cap[o.id] || 0) : null;
+      let badge = '';
+      if (o) badge = !cap ? '<span class="badge bad">Can\'t reach</span>' : m.mass.wet > cap ? '<span class="badge bad">Too heavy</span>' : `<span class="badge good">${Math.round((1 - m.mass.wet / cap) * 100)}% margin</span>`;
+      const busTooBig = l.maxBus && d.bus && G.BUSES.findIndex(b => b.id === d.bus) > G.BUSES.findIndex(b => b.id === l.maxBus);
+      if (busTooBig) badge = '<span class="badge bad">Bus too big</span>';
+      return optCard('launcher', l, d, { badge, stats: [money(l.cost), `${Math.round(l.reliability * 100)}% success rate`, o ? (cap ? `${fmt(cap)} kg to ${o.short.split(' ·')[0]}` : `0 kg to ${o.short.split(' ·')[0]}`) : ''] });
+    }).join('');
+    return `<section class="sect"><div class="massbox"><div><small>Dry mass</small><b>${fmt(m.mass.dry)} kg</b></div><div>+</div><div><small>Propellant</small><b>${fmt(m.mass.prop)} kg</b></div><div>=</div><div><small>Launch mass</small><b>${fmt(m.mass.wet)} kg</b></div></div></section>
+      ${sect('Launch vehicle', 'Bigger rockets lift more, farther — for a lot more money. Reliability matters too: you only get one spacecraft.', cards)}`;
+  }
+
+  // ---------- STEP: review ----------
+  function stepReview(d, m) {
+    const key = designKey();
+    const statusIcon = { block: '⛔', fail: '❌', warn: '⚠️', ok: '✅' };
+    const checks = m.checks.map(c => `<div class="chk st-${c.status}"><span class="ci">${statusIcon[c.status]}</span><div><b>${esc(c.label)}</b> <span class="owner">${roleChip(c.role)}</span><div>${esc(c.msg)}</div>${c.why && c.status !== 'ok' ? `<small>Why it matters: ${esc(c.why)}</small>` : ''}</div></div>`).join('');
+    const c = m.cost;
+    const costRows = [['Spacecraft hardware', c.hardware], ['Assembly, integration & test (15%)', c.integration], [`Risk class ${m.risk.id} premium`, c.riskPremium], ['Launch', c.launch], [`Operations (${m.years} yr × ${money(c.opsYear)})`, c.operations]];
+    const goals = G.ROLE_ORDER.map(r => `<div class="goalrow ${m.roleGoals[r] ? 'met' : ''}">${roleChip(r)}<span>${G.ROLES[r].goal}</span><b>${m.roleGoals[r] ? 'On track' : 'Not yet'}</b></div>`).join('');
+    const allSigned = [...Array(S.nPlayers)].every((_, i) => S.signoff[i] === key);
+    const canLaunch = !m.blocks.length && allSigned && (!m.fails.length || S.override);
+    const signRows = [...Array(S.nPlayers)].map((_, i) => {
+      const signed = S.signoff[i] === key;
+      return `<div class="signrow"><span>${rolesOf(i).map(r => G.ROLES[r].icon).join('')} <b>${esc(playerName(i))}</b></span>
+        <button class="btn ${signed ? 'go' : 'ghost'}" data-a="sign" data-i="${i}">${signed ? '✅ GO' : 'Sign GO'}</button></div>`;
+    }).join('');
+    return `<section class="sect"><h3>Design review</h3><p class="intro">Real missions pass a series of formal reviews before launch. Every role checks the whole system. ⛔ must be fixed. ❌ will badly hurt the mission (you can override, at −50 points each). ⚠️ are risks you may accept.</p>
+        <div class="summary">
+          <div class="sum"><small>Science potential</small><b class="${m.science.potential >= 1 ? 'ok' : m.science.potential >= 0.6 ? 'warn' : 'bad'}">${Math.round(m.science.potential * 100)}%</b><span>of target</span></div>
+          <div class="sum"><small>Total cost</small><b>${money(c.total)}</b><span>of ${m.scenario.sandbox ? '∞' : money(c.budget)}</span></div>
+          <div class="sum"><small>Launch mass</small><b>${fmt(m.mass.wet)} kg</b><span>${m.mass.cap ? 'of ' + fmt(m.mass.cap) + ' kg' : '—'}</span></div>
+          <div class="sum"><small>Issues</small><b>${m.blocks.length + m.fails.length}</b><span>${m.warns.length} warnings</span></div>
+        </div>
+        <div class="checks">${checks}</div></section>
+      <section class="sect two">
+        <div><h3>Cost breakdown</h3><table class="tbl">${costRows.map(([k, v]) => `<tr><td>${k}</td><td>${money(v)}</td></tr>`).join('')}<tr class="tot"><td>Total</td><td>${money(c.total)}</td></tr><tr><td>Reserve</td><td class="${c.reserve < 0 ? 'bad' : ''}">${m.scenario.sandbox ? '—' : money(c.reserve)}</td></tr></table></div>
+        <div><h3>Team goals</h3>${goals}<p class="muted small">Each personal goal met at the end earns +40 points.</p></div>
+      </section>
+      <section class="sect launchpad">
+        <h3>GO / NO-GO poll</h3>
+        <p class="intro">${S.nPlayers > 1 ? 'Every team member must sign GO. Any change to the design resets the poll.' : 'Sign off when you\'re confident in the design.'}</p>
+        ${signRows}
+        ${m.fails.length && !m.blocks.length ? `<label class="override"><input type="checkbox" data-a="override" ${S.override ? 'checked' : ''}> Launch anyway with ${m.fails.length} unresolved ❌ issue${m.fails.length > 1 ? 's' : ''} (−${50 * m.fails.length} pts)</label>` : ''}
+        <button class="btn primary huge" data-a="launch" ${canLaunch ? '' : 'disabled'}>🚀 Launch mission</button>
+        ${!canLaunch ? `<div class="muted small">${m.blocks.length ? 'Fix all ⛔ items first.' : !allSigned ? 'Waiting for GO from every team member.' : 'Resolve ❌ items or tick override.'}</div>` : ''}
+      </section>`;
+  }
+
+  // ---------- SIDE PANEL ----------
+  function gauge(label, used, cap, text, opts = {}) {
+    const frac = cap > 0 ? used / cap : (used > 0 ? 2 : 0);
+    let cls = frac <= (opts.warnAt || 0.9) ? 'ok' : frac <= 1 ? 'warn' : 'bad';
+    if (opts.invert) cls = frac >= 1 ? 'ok' : frac >= (opts.warnAt || 0.7) ? 'warn' : 'bad';
+    if (opts.na) cls = 'na';
+    return `<div class="gauge ${cls}"><div class="gl"><span>${label}</span><b>${text}</b></div><div class="gb"><i style="width:${Math.min(100, frac * 100)}%"></i></div></div>`;
+  }
+  function renderSide(d, m) {
+    const c = m.cost;
+    const sci = m.science.potential;
+    return `<div class="crafthold">${V.craft(d)}</div>
+      <div class="scimeter"><div><small>Science potential</small><b>${Math.round(sci * 100)}%</b></div><div class="gb big"><i style="width:${Math.min(100, sci / 1.3 * 100)}%" class="${sci >= 1 ? 'ok' : sci >= 0.6 ? 'warn' : 'bad'}"></i><span class="tgt" style="left:${100 / 1.3}%"></span></div></div>
+      <div class="gauges">
+        ${gauge('💰 Budget', c.total, m.scenario.sandbox ? c.total * 2 : c.budget, `${money(c.total)} / ${m.scenario.sandbox ? '∞' : money(c.budget)}`)}
+        ${gauge('⚖️ Launch mass', m.mass.wet, m.mass.cap, d.launcher && d.orbit ? `${fmt(m.mass.wet)} / ${fmt(m.mass.cap)} kg` : `${fmt(m.mass.wet)} kg`, { na: !d.launcher || !d.orbit })}
+        ${gauge('📦 Payload', m.mass.instMass, m.mass.payloadCap, d.bus ? `${fmt(m.mass.instMass)} / ${m.mass.payloadCap} kg` : `${fmt(m.mass.instMass)} kg`, { na: !d.bus })}
+        ${gauge('⚡ Power', m.power.required, m.power.availEOL, d.power && d.orbit ? `${fmt(m.power.required)} / ${fmt(m.power.availEOL)} W` : `${fmt(m.power.load)} W load`, { na: !d.power || !d.orbit, warnAt: 0.85 })}
+        ${gauge('🔋 Battery', m.battery.need, m.battery.have, d.battery ? `${fmt(m.battery.need)} / ${m.battery.have} Wh` : '—', { na: !d.battery || !d.orbit })}
+        ${gauge('📡 Data', m.data.gen, m.data.down, d.comms && d.ground && d.orbit ? `${fmt(m.data.gen, 1)} / ${fmt(m.data.down, 1)} Gb/day` : `${fmt(m.data.gen, 1)} Gb/day`, { na: !d.comms || !d.ground || !d.orbit })}
+        ${gauge('🔥 Δv', m.dv.need, m.dv.cap, d.propulsion && d.orbit ? `${fmt(m.dv.need)} / ${fmt(m.dv.cap)} m/s` : '—', { na: !d.propulsion || !d.orbit, warnAt: 0.95 })}
+        ${gauge('🎯 Pointing', m.pointing.have <= m.pointing.need ? 0.5 : 2, 1, d.adcs && d.instruments.length ? `need ${m.pointing.need}° · have ${m.pointing.have}°` : '—', { na: !d.adcs || !d.instruments.length })}
+      </div>
+      <div class="issues">${m.blocks.length + m.fails.length ? `<b>${m.blocks.length + m.fails.length} issue${m.blocks.length + m.fails.length > 1 ? 's' : ''}</b> · ` : ''}${m.warns.length} warning${m.warns.length === 1 ? '' : 's'} <button class="btn link small" data-a="step" data-v="review">Review →</button></div>`;
+  }
+
+  // ======================================================================
+  //  SIMULATION SCREEN
+  // ======================================================================
+  function renderSim() {
+    const sim = S.sim, m = sim.m;
+    return `<div class="topbar"><div class="tb-title">${m.scenario.icon} <b>${m.scenario.name}</b> · Mission Control</div><div class="tb-team">${esc(S.team)}</div></div>
+      <div class="simwrap">
+        <div class="simview">
+          <div id="simscene" class="simscene"></div>
+          <div class="simstats">
+            <div><small>Phase</small><b id="simphase">—</b></div>
+            <div><small>Mission clock</small><b id="simclock">—</b></div>
+            <div><small>Reserve</small><b id="simreserve">—</b></div>
+          </div>
+          <div class="gauge" id="g-health"><div class="gl"><span>❤️ Spacecraft health</span><b></b></div><div class="gb"><i></i></div></div>
+          <div class="gauge" id="g-sci"><div class="gl"><span>🔬 Science returned (vs. target)</span><b></b></div><div class="gb"><i></i></div></div>
+          <div class="simctrl">
+            <button class="btn ghost" data-a="pause">${S.paused ? '▶ Resume' : '⏸ Pause'}</button>
+            ${[1, 3, 8].map(x => `<button class="btn ${S.speed === x ? 'primary' : 'ghost'}" data-a="speed" data-v="${x}">${x}×</button>`).join('')}
+          </div>
+        </div>
+        <div class="simlog"><h3>Mission log</h3><div id="loglist"></div></div>
+      </div>`;
+  }
+  function updateSimLive() {
+    const sim = S.sim; if (!sim) return;
+    const m = sim.m, c = sim.ctx;
+    const phaseName = { prelaunch: 'Countdown', launch: 'Launch', deploy: 'Deployment', cruise: 'Cruise', insertion: 'Orbit insertion', ops: 'Science operations', 'extend?': 'Extension review' }[sim.phase] || 'Complete';
+    const scene = $('#simscene');
+    if (scene) {
+      const want = (sim.phase === 'prelaunch' || sim.phase === 'launch') ? 'launch' : 'orbit';
+      if (scene.dataset.mode !== want) { scene.dataset.mode = want; scene.innerHTML = want === 'launch' ? `<div class="launchscene">${V.rocket()}<div class="pad"></div></div>` : V.orbit(m.orbit.id, { big: true }); }
+    }
+    const set = (id, t) => { const el = $(id); if (el) el.textContent = t; };
+    set('#simphase', sim.done ? 'Complete' : phaseName);
+    set('#simclock', `Month ${c.month} / ${sim.totalMonths + sim.extendedMonths}`);
+    set('#simreserve', money(c.reserve));
+    const hg = $('#g-health'); if (hg) { const h = Math.max(0, c.health); hg.className = 'gauge ' + (h > 0.7 ? 'ok' : h > 0.4 ? 'warn' : 'bad'); hg.querySelector('b').textContent = Math.round(h * 100) + '%'; hg.querySelector('i').style.width = h * 100 + '%'; }
+    const sg = $('#g-sci'); if (sg) { const p = sim.science / (m.scenario.sciTarget * m.years); sg.className = 'gauge ' + (p >= 1 ? 'ok' : 'warn'); sg.querySelector('b').textContent = Math.round(p * 100) + '%'; sg.querySelector('i').style.width = Math.min(100, p * 100) + '%'; }
+    const ll = $('#loglist');
+    if (ll && ll.childElementCount !== sim.log.length) {
+      ll.innerHTML = sim.log.slice().reverse().map(e => `<div class="logi ${e.kind}"><span>M${e.month}</span>${esc(e.t)}</div>`).join('');
+    }
+  }
+  function startSim() {
+    S.attempts++;
+    S.sim = G.createSim(JSON.parse(JSON.stringify(S.design)), (Date.now() ^ (S.attempts * 7919)) >>> 0);
+    S.paused = false; S.speed = 1; S.votes = {}; S.eventResult = null;
+    go('sim');
+    schedule();
+  }
+  function schedule() {
+    clearTimeout(S.timer);
+    if (S.screen !== 'sim') return;
+    const sim = S.sim;
+    if (sim.done) { S.timer = setTimeout(() => { S.lastResult = { design: JSON.parse(JSON.stringify(S.design)), outcome: sim.outcome, sim }; saveScore(); go('report'); }, 1600); return; }
+    if (sim.pendingEvent) { if (!S.modal) { S.modal = 'event'; S.shownEvent = sim.pendingEvent; S.votes = {}; S.eventResult = null; render(); } return; }
+    if (sim.phase === 'extend?') { if (!S.modal) { S.modal = 'extend'; render(); } return; }
+    if (S.paused) return;
+    const slowPhases = { prelaunch: 1600, launch: 2600, deploy: 1400, cruise: 1600, insertion: 1500 };
+    const delay = (slowPhases[sim.phase] || 380) / S.speed;
+    S.timer = setTimeout(() => { sim.step(); updateSimLive(); schedule(); }, delay);
+  }
+  function saveScore() {
+    const r = S.lastResult; if (!r) return;
+    const lb = store.get('ma_leaderboard', []);
+    lb.push({ team: S.team, scenario: r.design.scenario, difficulty: r.design.difficulty, score: r.outcome.total, stars: r.outcome.stars, outcome: r.outcome.outcome, date: new Date().toISOString().slice(0, 10), code: G.encode(r.design) });
+    lb.sort((a, b) => b.score - a.score);
+    store.set('ma_leaderboard', lb.slice(0, 50));
+  }
+
+  // ======================================================================
+  //  REPORT
+  // ======================================================================
+  function renderReport() {
+    const { design: d, outcome: o, sim } = S.lastResult;
+    const m = sim.m, sc = m.scenario;
+    const banner = { success: ['Mission success!', 'good', 'All primary goals achieved over the full mission.'], partial: ['Partial success', 'warn', 'The mission returned useful science but fell short of its full goals.'], failure: ['Mission lost', 'bad', sim.lostReason || 'The mission did not achieve its goals.'] }[o.outcome];
+    const rows = [
+      ['Science returned', `${Math.round(o.sciPct * 100)}% of target`, o.sciencePts],
+      ['Primary objective', o.primary ? '✓ ' + sc.primary.text : '✗ ' + sc.primary.text, o.primaryPts],
+      ...o.secondary.map(s => ['Secondary objective', (s.met ? '✓ ' : '✗ ') + s.text, s.met ? 75 : 0]),
+      ['Budget efficiency', sc.sandbox ? '—' : `${Math.round(o.reserveFrac * 100)}% of budget left in reserve`, o.efficiencyPts],
+      ['Space sustainability', m.orbit.dvDispose ? (sim.disposed ? 'Disposed of safely at end of life' : 'Left behind as space debris') : (sim.lost ? 'Mission lost' : 'Natural disposal / no debris risk'), o.sustainPts],
+      ['Team goals', `${Object.values(o.goals).filter(Boolean).length} of 4 met`, o.goalPts],
+      ...(o.overridePts ? [['Overridden review issues', `${m.fails.length} ❌ launched anyway`, o.overridePts]] : []),
+    ];
+    const lessons = buildLessons(m, sim, o);
+    const goals = G.ROLE_ORDER.map(r => `<div class="goalrow ${o.goals[r] ? 'met' : ''}">${roleChip(r)}<span>${esc(playerName(ownerOf(r)))}: ${G.ROLES[r].goal}</span><b>${o.goals[r] ? '+40' : '—'}</b></div>`).join('');
+    const decisions = sim.decisions.length ? sim.decisions.map(x => `<li><b>${esc(x.event)}</b> → ${esc(x.choice)}<br><small>${esc(x.result)}</small></li>`).join('') : '<li class="muted">No major decisions were needed.</li>';
+    return `<div class="page">
+      <div class="banner ${banner[1]}"><div><div class="kicker">${sc.icon} ${sc.name} · ${G.DIFFICULTY[d.difficulty].name} · ${esc(S.team)}</div><h1>${banner[0]}</h1><p>${esc(banner[2])}</p></div>
+        <div class="scorebox"><div class="stars">${'★'.repeat(o.stars)}${'☆'.repeat(3 - o.stars)}</div><b>${fmt(o.total)}</b><small>points</small></div></div>
+      <div class="reportgrid">
+        <section class="card"><h3>Score breakdown</h3><table class="tbl">${rows.map(([a, b, c]) => `<tr><td>${a}<br><small class="muted">${esc(b)}</small></td><td class="${c < 0 ? 'bad' : ''}">${c > 0 ? '+' : ''}${c}</td></tr>`).join('')}<tr class="tot"><td>Total</td><td>${fmt(o.total)}</td></tr></table></section>
+        <section class="card"><h3>Post-mission analysis — why it went this way</h3><ul class="lessons">${lessons.map(l => `<li class="${l.kind}">${l.text}</li>`).join('')}</ul></section>
+        <section class="card"><h3>Mission timeline</h3><div class="miniscroll">${sim.log.map(e => `<div class="logi ${e.kind}"><span>M${e.month}</span>${esc(e.t)}</div>`).join('')}</div></section>
+        <section class="card"><h3>Team decisions</h3><ul class="decisions">${decisions}</ul><h3>Team goals</h3>${goals}</section>
+        <section class="card wide"><h3>🛰️ Real missions that faced the same problem</h3><p>${esc(sc.real)}</p>
+          <div class="specs">${[['Orbit', m.orbit.name], ['Launch', G.get.launcher(d.launcher).name], ['Mass', fmt(m.mass.wet) + ' kg'], ['Power', fmt(m.power.availEOL) + ' W (end of life)'], ['Cost', money(m.cost.total)], ['Instruments', m.insts.map(i => i.name).join(', ')]].map(([a, b]) => `<div><small>${a}</small><b>${esc(b)}</b></div>`).join('')}</div></section>
+      </div>
+      <div class="cta center">
+        <button class="btn primary big" data-a="redesign">🔧 Improve this design</button>
+        <button class="btn ghost big" data-a="relaunch">🎲 Fly it again</button>
+        <button class="btn ghost big" data-a="go" data-v="scenario">🌍 New mission</button>
+        <button class="btn ghost big" data-a="modal" data-v="share">🔗 Share design</button>
+        <button class="btn ghost big" data-a="copyreport">📋 Copy report</button>
+        <button class="btn ghost big" data-a="modal" data-v="leaderboard">🏆 Leaderboard</button>
+      </div>
+    </div>`;
+  }
+
+  function buildLessons(m, sim, o) {
+    const L = [];
+    const push = (kind, text) => L.push({ kind, text });
+    if (sim.lostReason === 'Launch vehicle failure') push('bad', `The rocket failed (${G.get.launcher(sim.ctx.d.launcher).name}s succeed ~${Math.round(G.get.launcher(sim.ctx.d.launcher).reliability * 100)}% of the time). Bad luck happens: real agencies sometimes buy launch insurance or build a spare.`);
+    if (sim.insertionFailed) push('bad', `Not enough Δv to brake into orbit. The capture burn needed ${m.orbit.dvInsert} m/s — a bipropellant engine (high Isp, large tanks) would have done it.`);
+    if (m.science.dataFactor < 0.95) push('warn', `Data bottleneck: only ${Math.round(m.data.ratio * 100)}% of collected data reached Earth, costing ~${Math.round((1 - m.science.dataFactor) * 100)}% of science. A faster radio, more ground-station time or onboard processing would help.`);
+    if (m.science.powerFactor < 1) push('warn', `Power deficit: instruments could only run ${Math.round(m.science.powerFactor * 100)}% of the time. Size arrays for end of life, including eclipse recharging${m.orbit.solar < 1 ? ' and weaker sunlight' : ''}.`);
+    m.science.perInst.filter(x => x.factor < 1).forEach(x => push('warn', `${x.name}: ${x.notes.join(', ')} — it returned only ${Math.round(x.factor * 100)}% of its potential.`));
+    if (m.science.orbitFit < 1 && m.science.orbitFit > 0) push('warn', `${m.orbit.name} gave only ${Math.round(m.science.orbitFit * 100)}% of the ideal vantage point for this goal.`);
+    if (sim.lifeMonths < sim.totalMonths) push('warn', `Station-keeping propellant ran out after ${sim.lifeMonths} months. More Δv margin = longer mission.`);
+    if (m.checks.find(c => c.id === 'radiation')) push('warn', 'The flight computer was under-rated for the radiation environment, raising the chance of resets and failures.');
+    if (m.checks.find(c => c.id === 'battery' && c.status === 'fail')) push('warn', 'An undersized battery meant brown-outs in every eclipse — a major failure risk.');
+    if (sim.lost && sim.lostReason && !sim.insertionFailed && sim.lostReason !== 'Launch vehicle failure') push('bad', `Mission ended by: ${sim.lostReason}. ${m.risk.redundancy ? 'Even with backups, space is unforgiving.' : 'A higher risk class (Class B) adds backup units that often turn fatal failures into recoverable ones.'}`);
+    if (m.orbit.dvDispose && !sim.disposed && !sim.lost) push('warn', 'No fuel was left for end-of-life disposal — the satellite now adds to the space-debris problem.');
+    if (m.cost.reserve / m.cost.budget < 0.05 && !m.scenario.sandbox) push('warn', 'Almost no budget reserve: the team couldn\'t pay for options when surprises came.');
+    if (o.outcome === 'success') push('good', 'Every major subsystem was sized with margin and matched to the orbit. That\'s systems engineering!');
+    if (m.power.margin >= 0.2) push('good', `Healthy ${Math.round(m.power.margin * 100)}% power margin protected against degradation and damage.`);
+    if (m.data.ratio >= 1) push('good', 'The communications system could send home everything the instruments produced.');
+    if (o.sciPct >= 1) push('good', `Science return exceeded the target (${Math.round(o.sciPct * 100)}%).`);
+    if (!L.length) push('good', 'A solid, balanced design.');
+    return L;
+  }
+
+  // ======================================================================
+  //  MODALS
+  // ======================================================================
+  function renderModal() {
+    if (!S.modal) return '';
+    let inner = '';
+    switch (S.modal) {
+      case 'howto': inner = `<h2>How to play</h2><ol class="howto">
+          <li><b>Build a team</b> (1–4 players). Each player gets one or more roles. Roles own decisions and have personal goals that sometimes conflict — talk it out!</li>
+          <li><b>Pick a mission.</b> Each has a science goal, a budget and a planned lifetime.</li>
+          <li><b>Design</b> in six steps: Mission → Orbit → Instruments → Spacecraft → Comms → Launch. The panel on the right shows every resource live: budget, mass, power, battery, data, Δv and pointing.</li>
+          <li><b>Design review.</b> Fix ⛔ blockers, decide whether to accept ⚠️ risks, then every player signs GO.</li>
+          <li><b>Launch & operate.</b> Watch the mission unfold and make team decisions when things go wrong (majority vote; the Mission Director breaks ties).</li>
+          <li><b>Read the report.</b> Learn why it worked — or didn't — then improve the design and fly again.</li></ol>
+          <p class="muted">Tip: there is never one perfect design. Different combinations can meet the same goal — compare scores with friends using design codes.</p>`; break;
+      case 'handbook': inner = handbook(); break;
+      case 'leaderboard': {
+        const lb = store.get('ma_leaderboard', []);
+        inner = `<h2>🏆 Leaderboard</h2>${lb.length ? `<table class="tbl lb"><tr><th>#</th><th>Team</th><th>Mission</th><th>Level</th><th>Result</th><th>Score</th></tr>${lb.slice(0, 20).map((e, i) => `<tr><td>${i + 1}</td><td>${esc(e.team)}</td><td>${esc((G.get.scenario(e.scenario) || {}).name || e.scenario)}</td><td>${esc((G.DIFFICULTY[e.difficulty] || {}).name || '')}</td><td>${'★'.repeat(e.stars)}${'☆'.repeat(3 - e.stars)}</td><td><b>${e.score}</b></td></tr>`).join('')}</table>` : '<p class="muted">No missions flown yet on this device.</p>'}<p class="muted small">Scores are saved in this browser only.</p>`; break;
+      }
+      case 'share': {
+        const code = G.encode(S.design || (S.lastResult && S.lastResult.design));
+        inner = `<h2>🔗 Share this design</h2><p>Send this code to another team so they can load, fly and compare your exact design.</p><textarea class="code" readonly>${esc(code)}</textarea><button class="btn primary" data-a="copy" data-v="${esc(code)}">Copy code</button> <span id="copied" class="muted"></span>`; break;
+      }
+      case 'load': inner = `<h2>📥 Load a design code</h2><p>Paste a code from another team (starts with <code>MA1-</code>).</p><textarea class="code" id="loadcode" placeholder="MA1-..."></textarea><button class="btn primary" data-a="loadcode">Load design</button> <span id="loaderr" class="bad"></span>`; break;
+      case 'confirmhome': inner = `<h2>Leave this mission?</h2><p>Your current design will be lost (copy its design code first if you want to keep it).</p><div class="cta"><button class="btn primary" data-a="go" data-v="home">Leave</button><button class="btn ghost" data-a="closemodal">Stay</button></div>`; break;
+      case 'event': inner = eventModal(); break;
+      case 'extend': {
+        const x = S.sim.extensionOffer;
+        inner = `<div class="evicon">🎉</div><h2>Extended mission proposal</h2><p>Your spacecraft completed its planned mission in good health! Scientists propose one more year of operations.</p>
+          <p class="learn">Many famous missions ran far beyond their plan: the Mars rover Opportunity was designed for 90 days and lasted 15 years.</p>
+          <ul><li>Cost: ${money(x.cost)} from reserve (you have ${money(S.sim.ctx.reserve)})</li><li>Fuel: ${x.canFuel ? 'enough for another year ✓' : 'not enough station-keeping propellant ✗'}</li></ul>
+          <div class="cta"><button class="btn primary" data-a="extend" data-v="1" ${x.canFuel && x.canPay ? '' : 'disabled'}>Extend +1 year</button><button class="btn ghost" data-a="extend" data-v="0">End mission</button></div>`; break;
+      }
+    }
+    const closable = !['event', 'extend'].includes(S.modal);
+    return `<div class="modalbg" ${closable ? 'data-a="closemodal"' : ''}><div class="modal" data-stop="1">${closable ? '<button class="x" data-a="closemodal" aria-label="Close">×</button>' : ''}${inner}</div></div>`;
+  }
+
+  function eventModal() {
+    const sim = S.sim, ev = S.shownEvent || sim.pendingEvent, ctx = sim.ctx;
+    if (S.eventResult) return `<div class="evicon">${ev.icon}</div><h2>${ev.title}</h2><p class="result">${esc(S.eventResult)}</p><button class="btn primary" data-a="eventcontinue">Continue mission →</button>`;
+    const choices = ev.choices.map((ch, ci) => ({ ch, ci, enabled: !ch.enabled || ch.enabled(ctx) }));
+    let voting = '';
+    if (S.nPlayers > 1) {
+      const counts = choices.map(x => Object.values(S.votes).filter(v => v === x.ci).length);
+      const allVoted = Object.keys(S.votes).length === S.nPlayers;
+      voting = `<div class="votes">${[...Array(S.nPlayers)].map((_, i) => `<div class="voterow"><span>${rolesOf(i).map(r => G.ROLES[r].icon).join('')} ${esc(playerName(i))}</span><div>${choices.map(x => `<button class="btn small ${S.votes[i] === x.ci ? 'primary' : 'ghost'}" data-a="vote" data-i="${i}" data-v="${x.ci}" ${x.enabled ? '' : 'disabled'}>${esc(x.ch.label)}</button>`).join('')}</div></div>`).join('')}</div>
+        <div class="tally">${choices.map((x, k) => `<span>${esc(x.ch.label)}: <b>${counts[k]}</b></span>`).join('')}</div>
+        <button class="btn primary" data-a="decide" ${allVoted ? '' : 'disabled'}>Execute team decision</button>`;
+    }
+    return `<div class="evicon">${ev.icon}</div><h2>${ev.title}</h2><p>${ev.text}</p><p class="learn">📘 ${ev.learn}</p>
+      <div class="choices">${choices.map(x => `<div class="choice ${x.enabled ? '' : 'dis'}"><b>${esc(x.ch.label)}</b><small>${esc(x.ch.detail)}${x.enabled ? '' : ' (not available)'}</small>${S.nPlayers === 1 ? `<button class="btn primary small" data-a="choose" data-v="${x.ci}" ${x.enabled ? '' : 'disabled'}>Choose</button>` : ''}</div>`).join('')}</div>
+      ${voting}<div class="muted small">Reserve available: ${money(ctx.reserve)}</div>`;
+  }
+
+  function handbook() {
+    const items = [
+      ['Δv (delta-v)', 'The change in velocity a spacecraft can make with its propellant — the "currency" of space travel. Reaching the Moon\'s orbit costs ~800 m/s of braking; staying in a low orbit costs a little every year.'],
+      ['Rocket equation', 'Propellant mass grows exponentially with Δv: m_prop = m_dry × (e^(Δv / (Isp·g₀)) − 1). A more efficient engine (higher Isp) needs far less propellant for the same Δv.'],
+      ['Specific impulse (Isp)', 'How efficiently an engine uses propellant, in seconds. Cold gas ~70 s, hydrazine ~225 s, bipropellant ~315 s, ion engines ~3000 s.'],
+      ['Eclipse', 'Time spent in a planet\'s shadow. Batteries power the spacecraft then, and the arrays must recharge them in sunlight — so arrays need to be bigger than the load.'],
+      ['Depth of discharge (DoD)', 'How much of a battery you drain each cycle. A LEO satellite cycles ~5,500 times a year, so engineers drain only ~30% to make batteries last.'],
+      ['End-of-life (EOL) power', 'Solar cells degrade in space radiation (~2–3%/yr). Arrays are sized so there is still enough power at the end of the mission.'],
+      ['Link budget', 'Signal strength drops with distance squared. Bigger antennas, higher frequencies (X → Ka → laser), more transmit power and bigger ground dishes all increase the data rate.'],
+      ['Ground segment', 'Antennas and control centres on Earth. A LEO satellite is visible to one station only a few minutes per pass; deep-space missions need the Deep Space Network.'],
+      ['Attitude control (ADCS)', 'The system that knows and controls which way the spacecraft points. Cameras and high-gain antennas need precise pointing.'],
+      ['Radiation hardness', 'Space radiation flips bits and damages chips. Rad-hard parts survive the Van Allen belts and deep space, at the cost of speed and money.'],
+      ['Risk class', 'NASA classifies missions A (flagship, lowest risk tolerance) to D (cheap, higher risk). Higher classes mean redundancy and more testing.'],
+      ['TRL', 'Technology Readiness Level, 1 (idea) to 9 (flight-proven). Low-TRL tech is exciting but riskier.'],
+      ['Margin', 'Spare capacity kept on purpose. Mass grows during development and parts degrade in flight — margin is insurance.'],
+      ['Space debris & disposal', 'Defunct satellites can collide and create clouds of debris. US rules now require LEO satellites to de-orbit within 5 years of mission end.'],
+      ['Lagrange points (L1, L2)', 'Places where the gravity of the Sun and Earth balance the orbital motion, so a spacecraft keeps pace with Earth. L1 faces the Sun; L2 is shaded by Earth.'],
+      ['Mission segments', 'Launch segment (rocket), space segment (spacecraft & instruments), ground segment (antennas & control) and user segment (the scientists using the data).'],
+    ];
+    return `<h2>📘 Mission Handbook</h2><p class="muted">Key ideas used in the game, in plain language.</p><dl class="glossary">${items.map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join('')}</dl>
+      <p class="muted small">Further reading: NASA Mission Design Lab, JPL Concept Maturity Levels, NASA CubeSat 101, and the GMAT mission analysis tool.</p>`;
+  }
+
+  // ======================================================================
+  //  EVENTS
+  // ======================================================================
+  document.addEventListener('click', e => {
+    const t = e.target.closest('[data-a]');
+    if (!t) return;
+    if (t.dataset.a === 'closemodal' && e.target.closest('[data-stop]') && !e.target.closest('.x') && !e.target.closest('button')) return;
+    const a = t.dataset.a, v = t.dataset.v;
+    if (t.disabled || t.getAttribute('aria-disabled') === 'true') return;
+    switch (a) {
+      case 'newgame': go('setup'); break;
+      case 'go': S.modal = null; clearTimeout(S.timer); go(v); break;
+      case 'modal': S.modal = v; render(); break;
+      case 'closemodal': S.modal = null; render(); break;
+      case 'confirmhome': S.modal = 'confirmhome'; render(); break;
+      case 'nplayers': S.nPlayers = +v; render(); break;
+      case 'difficulty': S.difficulty = v; render(); break;
+      case 'scenario': S.design = G.newDesign(v, S.difficulty); S.step = 'mission'; S.signoff = {}; S.override = false; go('design'); break;
+      case 'step': { S.step = v; S._keepScroll = false; S.modal = null; render(); const mn = $('.main'); if (mn) mn.scrollTop = 0; window.scrollTo(0, 0); break; }
+      case 'set': setDesign(t.dataset.f, v); break;
+      case 'toggleinst': {
+        const list = S.design.instruments;
+        S.design.instruments = list.includes(v) ? list.filter(x => x !== v) : list.concat(v);
+        S.signoff = {}; S.override = false; render(); break;
+      }
+      case 'sign': { const i = +t.dataset.i; const key = designKey(); S.signoff[i] = S.signoff[i] === key ? null : key; render(); break; }
+      case 'launch': startSim(); break;
+      case 'pause': S.paused = !S.paused; render(); schedule(); break;
+      case 'speed': S.speed = +v; render(); schedule(); break;
+      case 'choose': resolveEvent(+v); break;
+      case 'vote': S.votes[+t.dataset.i] = +v; render(); break;
+      case 'decide': {
+        const counts = {}; Object.values(S.votes).forEach(x => counts[x] = (counts[x] || 0) + 1);
+        const max = Math.max(...Object.values(counts));
+        const top = Object.keys(counts).filter(k => counts[k] === max).map(Number);
+        const dirVote = S.votes[ownerOf('director')];
+        resolveEvent(top.length > 1 && top.includes(dirVote) ? dirVote : top[0]);
+        break;
+      }
+      case 'eventcontinue': S.modal = null; S.eventResult = null; S.shownEvent = null; render(); schedule(); break;
+      case 'extend': S.modal = null; S.sim.extend(v === '1'); render(); schedule(); break;
+      case 'redesign': S.design = JSON.parse(JSON.stringify(S.lastResult.design)); S.step = 'review'; S.signoff = {}; S.override = false; go('design'); break;
+      case 'relaunch': S.design = JSON.parse(JSON.stringify(S.lastResult.design)); startSim(); break;
+      case 'copy': copyText(v, '#copied'); break;
+      case 'copyreport': copyText(reportText(), null, t); break;
+      case 'loadcode': {
+        const d = G.decode(($('#loadcode') || {}).value || '');
+        if (!d) { const el = $('#loaderr'); if (el) el.textContent = 'That code could not be read.'; break; }
+        S.design = d; S.difficulty = d.difficulty || 'engineer'; S.step = 'review'; S.signoff = {}; S.modal = null; go('design'); break;
+      }
+    }
+  });
+  document.addEventListener('input', e => {
+    const t = e.target;
+    if (t.dataset.a === 'years') { S.design.years = +t.value; const b = t.nextElementSibling; if (b) b.textContent = `${t.value} year${t.value > 1 ? 's' : ''}`; }
+    if (t.dataset.a === 'pname') { S.players[+t.dataset.i] = t.value; }
+    if (t.dataset.a === 'team') { S.team = t.value; }
+  });
+  document.addEventListener('change', e => {
+    const t = e.target;
+    if (t.dataset.a === 'override') { S.override = t.checked; render(); }
+    if (t.dataset.a === 'years') { S.design.years = +t.value; S.signoff = {}; render(); }
+    if (t.dataset.a === 'pname') render();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && S.modal && !['event', 'extend'].includes(S.modal)) { S.modal = null; render(); } });
+
+  function resolveEvent(idx) {
+    const sim = S.sim;
+    sim.resolve(idx);
+    const last = sim.decisions[sim.decisions.length - 1];
+    S.eventResult = last ? last.result : '';
+    S.votes = {};
+    render();
+  }
+
+  function copyText(text, statusSel, btn) {
+    const done = ok => { if (statusSel && $(statusSel)) $(statusSel).textContent = ok ? 'Copied!' : 'Select the text and copy it manually.'; if (btn) { const o = btn.textContent; btn.textContent = ok ? '✓ Copied' : 'Copy failed'; setTimeout(() => btn.textContent = o, 1500); } };
+    try { navigator.clipboard.writeText(text).then(() => done(true), () => done(false)); } catch (e) { done(false); }
+  }
+  function reportText() {
+    const { design: d, outcome: o, sim } = S.lastResult; const m = sim.m;
+    return [`MISSION ARCHITECT — ${m.scenario.name} (${G.DIFFICULTY[d.difficulty].name})`, `Team: ${S.team}`, `Result: ${o.outcome.toUpperCase()} — ${o.total} pts ${'★'.repeat(o.stars)}`,
+      `Science: ${Math.round(o.sciPct * 100)}% of target · Cost ${money(m.cost.total)} of ${money(m.cost.budget)}`,
+      `Orbit: ${m.orbit.name} · Launch: ${G.get.launcher(d.launcher).name} · Mass ${fmt(m.mass.wet)} kg`,
+      `Instruments: ${m.insts.map(i => i.name).join(', ')}`, '', 'Timeline:', ...sim.log.map(e => `  M${e.month}: ${e.t}`), '', `Design code: ${G.encode(d)}`].join('\n');
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
